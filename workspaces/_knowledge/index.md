@@ -20,3 +20,8 @@
 | 20260914175358-a70c62 | P20260914-1728-网页版票夹管理发票 | tech | 工程目录规划 —— 票夹通（TicketWallet） | 03_engineering/repo-layout.md | 目录规划,脚手架 | 30目录monorepo目录树（apps/web+apps/server+packages/shared+deploy）+职责表+里程碑对照 |
 | 20260914175358-e63f44 | P20260914-1728-网页版票夹管理发票 | tech | API 设计 —— 票夹通（TicketWallet） | 03_engineering/api-design.md | API设计,错误码 | 22个接口+15个错误码+统一约定+安全约定（Session/越权404/服务端掩码） |
 | 20260914175358-fedc38 | P20260914-1728-网页版票夹管理发票 | tech | 工程计划 —— 票夹通（TicketWallet） | 03_engineering/engineering-plan.md | 工程计划,排期,测试 | M1-M3周级排期DoD、trunk-based分支、四层测试、降级/回滚/容灾兜底 |
+| 20260914175951-339ba5 | P20260914-1728-网页版票夹管理发票 | ops | 部署方案 —— 票夹通（TicketWallet） | 04_ops/deployment.md | 部署,上线,回滚 | 三环境划分（dev/staging/生产同VPS三重隔离）、12步上线流程、三层回滚，成本≤¥50/月 |
+| 20260914175951-50ebf0 | P20260914-1728-网页版票夹管理发票 | ops | CI/CD 方案 —— 票夹通（TicketWallet） | 04_ops/cicd.md | CICD,流水线,发布策略 | PR/夜间/tag三触发器流水线、30秒健康门禁自动回退、周四21:00发布窗口滚动重建 |
+| 20260914175951-b27da6 | P20260914-1728-网页版票夹管理发票 | ops | 监控告警方案 —— 票夹通（TicketWallet） | 04_ops/monitoring.md | 监控,告警,日志 | 四黄金信号阈值表（P95<500ms/可用性≥99.5%）、pino日志方案、P0-P1-P2告警分级与值班升级 |
+| 20260914175951-a4c9b2 | P20260914-1728-网页版票夹管理发票 | ops | 备份与容灾方案 —— 票夹通（TicketWallet） | 04_ops/backup-dr.md | 备份,容灾,RTO,RPO | RPO24h/RTO2h矩阵、版本化桶防误删传播、pg_dump AES-256加密、季度演练为一票否决项 |
+| 20260914175951-1c6e25 | P20260914-1728-网页版票夹管理发票 | ops | 故障处置手册（Runbook）—— 票夹通（TicketWallet） | 04_ops/runbook.md | runbook,故障处置 | 通用排查三步+10类故障卡片（现象/定位/处置/升级路径），手册化到可照抄执行 |

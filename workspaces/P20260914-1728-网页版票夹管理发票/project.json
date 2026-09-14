@@ -33,8 +33,14 @@
      "decisions": ["Q2回签：抬头不脱敏（识别检索主字段），维持号码留末4位+账号脱敏，详情与CSV不脱敏，给出全站脱敏矩阵", "状态色唯一映射：正常绿/作废灰/红冲红，颜色+文字双通道", "一级导航3项（票夹/汇总/回收站），新增发票顶栏主按钮+移动FAB", "空态双型：首录引导型vs筛选无果型", "筛选与页码入URL query", "两级删除文案区分：回收站30天可恢复vs彻底删除不可恢复"],
      "risks": ["忘记密码Q1未决：登录页预留客服入口位，纳入M2需增R11", "移动加载更多vs桌面分页两种形态需tech确认同一分页API覆盖（风险低）", "高保真视觉稿不产出，品牌升级需二期"],
      "docs": ["02_design/design-spec.md", "02_design/information-architecture.md", "02_design/pages.md", "02_design/interactions.md", "02_design/wireframes.md"],
-     "error": "", "ts": "2026-09-14T17:44:49+08:00"}
+     "error": "", "ts": "2026-09-14T17:44:49+08:00"},
+    {"role": "tech", "status": "done",
+     "summary": "技术方案完成：单机单体 React18+Vite+TS / NestJS+Prisma+PostgreSQL16 / Caddy；30目录monorepo树已物化为scaffold/（30个.gitkeep）；API契约22接口+15错误码覆盖F01-F15与R1-R10；工程计划含周级排期与降级回滚容灾。门禁5/5通过。",
+     "decisions": ["前后端同构TypeScript，zod schema三端共享（packages/shared）", "服务端Session+HttpOnly Cookie（弃JWT），argon2id哈希，bcrypt为降级路径", "G2靠PG索引（user_id+issued_date部分索引、pg_trgm GIN抬头模糊），不引入Redis", "G4双层守卫SessionAuthGuard+OwnershipGuard，越权一律404，列表服务端掩码号码", "汇总口径A3收敛为stats模块单一实现点；CSV导出count预检+流式+BOM"],
+     "risks": ["微信内置浏览器WebView/Cookie兼容差异→M1 E2E加webkit视口对冲", "多会话接力风格漂移→目录即架构+禁止横向import+PR关联验收编号", "单机容灾RPO24h/RTO2h→每日pg_dump+附件rsync异机+季度演练"],
+     "docs": ["03_engineering/tech-stack.md", "03_engineering/architecture.md", "03_engineering/repo-layout.md", "03_engineering/api-design.md", "03_engineering/engineering-plan.md"],
+     "error": "", "ts": "2026-09-14T17:53:58+08:00"}
   ],
   "issues": [],
-  "versions": ["9c06cd0 chore: 初始化项目 P20260914-1728-网页版票夹管理发票", "cec3615 phase:planner P20260914-1728-网页版票夹管理发票", "2ae1bfa phase:pm P20260914-1728-网页版票夹管理发票", "de4e90a phase:designer P20260914-1728-网页版票夹管理发票"]
+  "versions": ["9c06cd0 chore: 初始化项目 P20260914-1728-网页版票夹管理发票", "cec3615 phase:planner P20260914-1728-网页版票夹管理发票", "2ae1bfa phase:pm P20260914-1728-网页版票夹管理发票", "de4e90a phase:designer P20260914-1728-网页版票夹管理发票", "6b9278c phase:tech P20260914-1728-网页版票夹管理发票"]
 }
