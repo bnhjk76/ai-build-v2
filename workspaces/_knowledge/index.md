@@ -10,3 +10,8 @@
 | 20260914173632-372fce | P20260914-1728-网页版票夹管理发票 | pm | 功能清单与验收标准 —— 票夹通（TicketWallet） | 01_product/features.md | 功能清单,MoSCoW,验收标准 | F01-F15功能清单：MoSCoW优先级+M1/M2里程碑映射+Given/When/Then验收标准含异常路径 |
 | 20260914173632-44b1f1 | P20260914-1728-网页版票夹管理发票 | pm | 用户故事与关键用户旅程 —— 票夹通（TicketWallet） | 01_product/user-stories.md | 用户故事,用户旅程 | US01-US15用户故事与J1-J4关键旅程，覆盖八项能力的正常/异常路径与覆盖度矩阵 |
 | 20260914173632-f0d401 | P20260914-1728-网页版票夹管理发票 | pm | 成功指标与埋点口径 —— 票夹通（TicketWallet） | 01_product/metrics.md | 指标,埋点,北极星 | 北极星指标（周活本月新增开票条数）+P1-P4过程指标+质量护栏+30余埋点事件字典 |
+| 20260914174449-1fb490 | P20260914-1728-网页版票夹管理发票 | designer | 设计规范（Design Spec）—— 票夹通（TicketWallet） | 02_design/design-spec.md | 设计规范,DesignTokens,脱敏 | 设计原则+视觉语言+DesignTokens（hex/px实值）+组件规范+脱敏矩阵（Q2回签：抬头不脱敏） |
+| 20260914174449-67d0a0 | P20260914-1728-网页版票夹管理发票 | designer | 信息架构 —— 票夹通（TicketWallet） | 02_design/information-architecture.md | 信息架构,导航,概念模型 | 站点地图+桌面顶栏/移动底部Tab双端导航+核心概念模型+术语表+权限矩阵 |
+| 20260914174449-414d3e | P20260914-1728-网页版票夹管理发票 | designer | 页面清单 —— 票夹通（TicketWallet） | 02_design/pages.md | 页面清单,状态设计 | P01-P08页面清单：每页目的/关键元素/默认加载空错误无权限五状态 |
+| 20260914174449-4d8abc | P20260914-1728-网页版票夹管理发票 | designer | 交互流程 —— 票夹通（TicketWallet） | 02_design/interactions.md | 交互流程,异常兜底 | R1-R10交互流程：正常流+异常兜底含mermaid图，与features验收条目逐一映射 |
+| 20260914174449-d3487f | P20260914-1728-网页版票夹管理发票 | designer | 线框图 —— 票夹通（TicketWallet） | 02_design/wireframes.md | 线框图,布局 | W1-W8 ASCII线框图：列表页含桌面/移动双形态，可直接指导实现 |

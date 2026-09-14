@@ -21,8 +21,14 @@
      "summary": "章程完成：定位为面向个人与小商户的网页版开票记录票夹；范围聚焦手工录入+多维检索+汇总导出，OCR与税务接口列范围外；目标G1-G5可衡量；里程碑M0-M3，本流程负责M0文档与脚手架。",
      "decisions": ["主场景定为开票方（销项）记录台账，不做进项管理", "MVP 手工录入，OCR 二期", "一期单用户私有，不做协作共享"],
      "risks": ["发票数据敏感的合规疑虑→一期脱敏+加密+不做对外接口", "subagent 产出不合格→重派一次后按骨架兜底记 degraded"],
-     "docs": ["00_charter/charter.md"], "error": "", "ts": "2026-09-14T17:29:37+08:00"}
+     "docs": ["00_charter/charter.md"], "error": "", "ts": "2026-09-14T17:29:37+08:00"},
+    {"role": "pm", "status": "done",
+     "summary": "产品定义完成：PRD明确开票方视角与双画像；features输出F01-F15（MoSCoW+验收标准）；user-stories输出US01-US15与J1-J4旅程含异常路径；metrics定义北极星与30+埋点事件。质量门禁4/4通过。",
+     "decisions": ["发票类型按票种×介质双维度建模，筛选按章程字面四选", "发票代码选填兼容数电票，号码必填8-20位", "汇总口径：正常计有效金额、红冲负冲减、作废仅计张数", "附件定级Should（M2必达）", "脱敏底线：号码留末4位，详情与CSV导出不脱敏"],
+     "risks": ["忘记密码未入MVP，待确认Q1，或成客服高频问题", "北极星主口径与首月人均目标为假设需上线校准", "脱敏字段范围待designer回签"],
+     "docs": ["01_product/PRD.md", "01_product/features.md", "01_product/user-stories.md", "01_product/metrics.md"],
+     "error": "", "ts": "2026-09-14T17:36:32+08:00"}
   ],
   "issues": [],
-  "versions": ["9c06cd0 chore: 初始化项目 P20260914-1728-网页版票夹管理发票", "cec3615 phase:planner P20260914-1728-网页版票夹管理发票"]
+  "versions": ["9c06cd0 chore: 初始化项目 P20260914-1728-网页版票夹管理发票", "cec3615 phase:planner P20260914-1728-网页版票夹管理发票", "2ae1bfa phase:pm P20260914-1728-网页版票夹管理发票"]
 }
