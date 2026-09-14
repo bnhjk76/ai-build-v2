@@ -15,3 +15,8 @@
 | 20260914174449-414d3e | P20260914-1728-网页版票夹管理发票 | designer | 页面清单 —— 票夹通（TicketWallet） | 02_design/pages.md | 页面清单,状态设计 | P01-P08页面清单：每页目的/关键元素/默认加载空错误无权限五状态 |
 | 20260914174449-4d8abc | P20260914-1728-网页版票夹管理发票 | designer | 交互流程 —— 票夹通（TicketWallet） | 02_design/interactions.md | 交互流程,异常兜底 | R1-R10交互流程：正常流+异常兜底含mermaid图，与features验收条目逐一映射 |
 | 20260914174449-d3487f | P20260914-1728-网页版票夹管理发票 | designer | 线框图 —— 票夹通（TicketWallet） | 02_design/wireframes.md | 线框图,布局 | W1-W8 ASCII线框图：列表页含桌面/移动双形态，可直接指导实现 |
+| 20260914175358-a01893 | P20260914-1728-网页版票夹管理发票 | tech | 技术选型 —— 票夹通（TicketWallet） | 03_engineering/tech-stack.md | 技术选型,架构选型 | 五域选型：React18+Vite+TS/NestJS+Prisma+PG16/Caddy，各决策理由备选取舍+降级路径 |
+| 20260914175358-ea9a2a | P20260914-1728-网页版票夹管理发票 | tech | 系统架构 —— 票夹通（TicketWallet） | 03_engineering/architecture.md | 架构,ER图,数据流 | 单机单体架构：部署拓扑、前后端模块划分、ER图与索引策略、六条关键数据流mermaid |
+| 20260914175358-a70c62 | P20260914-1728-网页版票夹管理发票 | tech | 工程目录规划 —— 票夹通（TicketWallet） | 03_engineering/repo-layout.md | 目录规划,脚手架 | 30目录monorepo目录树（apps/web+apps/server+packages/shared+deploy）+职责表+里程碑对照 |
+| 20260914175358-e63f44 | P20260914-1728-网页版票夹管理发票 | tech | API 设计 —— 票夹通（TicketWallet） | 03_engineering/api-design.md | API设计,错误码 | 22个接口+15个错误码+统一约定+安全约定（Session/越权404/服务端掩码） |
+| 20260914175358-fedc38 | P20260914-1728-网页版票夹管理发票 | tech | 工程计划 —— 票夹通（TicketWallet） | 03_engineering/engineering-plan.md | 工程计划,排期,测试 | M1-M3周级排期DoD、trunk-based分支、四层测试、降级/回滚/容灾兜底 |

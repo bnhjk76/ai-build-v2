@@ -1,0 +1,177 @@
+# API 设计 —— 票夹通（TicketWallet）
+
+> 文档版本：v1.0 ｜ 撰写日期：2026-09-14 ｜ 撰写角色：tech（技术负责人） ｜ 状态：待评审
+> 上游依据：`01_product/features.md` F01–F15、`02_design/information-architecture.md` §6（权限矩阵）、`02_design/interactions.md` R1–R10、`03_engineering/architecture.md` §4/§6
+> 下游读者：开发实施会话（接口实现唯一契约）、qa（集成测试断言）、support（错误提示口径）
+
+---
+
+## 1. 背景
+
+本文定义票夹通前后端之间的 HTTP 契约：统一约定（版本/包络/分页/时间/金额）、核心资源、全部接口、错误码规范与安全约定。所有接口与 features.md 的验收标准（Given/When/Then）一一对应，qa 可直接按本文断言。
+
+## 2. 统一约定
+
+| 项 | 约定 |
+| --- | --- |
+| 基路径 | `/api/v1`（版本前置路径，破坏性变更升 v2） |
+| 传输 | 全站 HTTPS（Caddy 自动签发）；同源部署，无 CORS |
+| 请求格式 | `Content-Type: application/json`（附件上传除外：`multipart/form-data`） |
+| 认证 | 登录后 Cookie `tw_session`（HttpOnly; Secure; SameSite=Lax），**所有写接口额外要求头 `X-Requested-With: XMLHttpRequest`**（CSRF 双保险） |
+| 响应包络 | 成功：`{ "data": <资源或null> }`（2xx）；失败：`{ "error": { "code": "<业务错误码>", "message": "<中文用户可读>", "details": [<字段级错误>] } }`（4xx/5xx） |
+| 时间 | 传输一律 ISO 8601 UTC（`2026-09-14T08:00:00Z`）；开票日期为 `YYYY-MM-DD`；业务口径（自然月/年、≤今天）服务端固定东八区计算 |
+| 金额 | 字符串两位小数 `"4000.00"`（避免 JS 浮点；numeric(12,2) 直映射） |
+| 分页 | `page`（从 1 起）+ `page_size`（默认 20，上限 100）；响应含 `total`。**桌面分页与移动「加载更多」共用同一接口**（design 交接约束） |
+| 越权语义 | 访问他人/不存在的资源一律 `404 INV_001`（不返回 403，防存在性探测——IA §6） |
+| 幂等性 | 写接口防重复：前端按钮 loading 禁用 + 服务端不额外做幂等键（MVP 取舍，记入遗留） |
+
+## 3. 核心资源
+
+| 资源 | 说明 | 关键字段与口径 |
+| --- | --- | --- |
+| User | 账号（邮箱或手机号二选一，注册后不可换） | `account`、`accountType`（email/phone）；密码仅入参不回传 |
+| Invoice | 开票记录（11 字段，IA §4.1 对象模型） | `invoiceCode?`（≤20 位数字/字母）、`invoiceNumber`（8–20 位数字）、`issuedDate`、`title`（1–100）、`amount`（>0）、`taxAmount`（≥0）、`totalAmount`（服务端重算=amount+taxAmount，**前端只传前两项**）、`category`（special/general）、`medium`（electronic/paper）、`status`（normal/voided/reversed）、`remark?`（≤200） |
+| Attachment | 附件（≤3 个/记录，≤10MB） | `filename`、`mimeType`、`size`、`createdAt`；文件本体经 `storageKey` 间接访问 |
+| StatsSummary | 汇总投影（只读聚合） | 口径 A3：`有效金额 = Σ(正常 total) − Σ(红冲 total)`；`有效张数 = 正常+红冲`；`作废`只计张数 |
+| Event | 埋点事件 | `name`（字典见 features/interactions）、`reason?`、`dims?` |
+
+## 4. 接口清单
+
+### 4.1 认证 auth（F01–F03，M1）
+
+| 方法 路径 | 说明 | 请求/响应要点 |
+| --- | --- | --- |
+| `POST /auth/register` | 注册并自动登录 | 入参 `{account, password}`；服务端识别 accountType 并校验格式；成功 `201` + Set-Cookie，`data` 含脱敏账号 `"a***@x.com"`；重复注册 `409 AUTH_004`（message 含「请直接登录」引导） |
+| `POST /auth/login` | 登录 | 入参 `{account, password}`；错误统一 `401 AUTH_001`「账号或密码错误」；第 6 次起 `423 AUTH_002`，`details` 含 `retryAfterMinutes`（前端显示剩余时间、禁用按钮）；成功返回 `{account(脱敏), accountType}` |
+| `POST /auth/logout` | 退出（需登录） | 删除 session 行 + 清 Cookie；`204` |
+| `GET /auth/me` | 当前会话（需登录） | `200 {account(脱敏), accountType, expiresAt}`；会话失效 `401 AUTH_003`（前端拦截器统一跳登录，R9） |
+
+### 4.2 发票 invoices（F04–F08/F10/F15）
+
+| 方法 路径 | 说明 | 请求/响应要点 |
+| --- | --- | --- |
+| `GET /invoices` | 列表+筛选+分页（F07/F08） | query：`month`(YYYY-MM)、`title`(关键字)、`amountMin`、`amountMax`（作用 totalAmount）、`category`(可多，逗号分隔)、`medium`(可多)、`status`(可多)、`page`、`page_size`；`title` 与数值参数间 AND，同维度多值 OR，`amountMin>amountMax` 返回 `422 INV_002`（正常由前端前置拦截）；响应 `data: { items:[…], total, page, page_size }`；**items 中 `invoiceNumber` 服务端掩码 `****5678`**，`?show_sensitive=1`（登录用户本人）返回全号（R8 眼睛切换） |
+| `POST /invoices` | 新增（F04，G1） | 入参 11 字段（不含 totalAmount）；服务端重算价税合计；`issuedDate>今天(东八区)` → `422 INV_002`；成功 `201` 返回完整资源（不脱敏，新记录即刻定位） |
+| `GET /invoices/:id` | 详情（F07） | 完整字段 + `attachments[]` 元数据；**不脱敏**（design-spec §6.2 详情页口径）；非本人/不存在 → `404 INV_001` |
+| `PATCH /invoices/:id` | 编辑（F05，M2） | 部分字段合并；保留 `createdAt`、刷新 `updatedAt`；校验同 POST |
+| `DELETE /invoices/:id` | 删除→回收站（F06，M2） | 软删除（置 `deletedAt`）；附件随行保留；`204`；再删 → `404 INV_001` |
+| `GET /invoices/export` | CSV 导出（F10，M2，G3） | query 同 `/invoices` 筛选参数（无参=全量）；预检 `total>5000` → `422 EXP_001`；成功 `200 text/csv; charset=utf-8`，**首字节 BOM**，流式输出；列序：开票日期/发票代码/发票号码/抬头/票种/介质/状态/金额/税额/价税合计/备注/录入时间；**内容不脱敏**（本人导出）；文件名 `票夹通导出_YYYYMMDD_HHmmss.csv`（`Content-Disposition`） |
+| `GET /invoices/titles/suggest` | 抬头联想（F15，M2 Could） | query `q`(≥2 字)；返回本人历史抬头 `data:["…"]`（去重、按频次+最近使用排序，≤10 条）；不阻断手输 |
+
+### 4.3 附件 attachments（F11，M2）
+
+| 方法 路径 | 说明 | 请求/响应要点 |
+| --- | --- | --- |
+| `POST /invoices/:id/attachments` | 上传 | `multipart/form-data`，字段 `file`；服务端三校验：格式（扩展名+魔数 jpg/jpeg/png/webp/pdf）→ `422 ATT_003`；大小 >10MB → `422 ATT_001`；已挂 3 个 → `422 ATT_002`；成功 `201` 附件元数据 |
+| `GET /invoices/:id/attachments` | 附件列表 | 附属于记录详情也可用此独立获取；`data:[元数据]` |
+| `GET /attachments/:id/file` | 下载/预览 | OwnershipGuard 校验（记录属主）；`200` 文件流，`Content-Type` 按存储 mime，inline 预览 |
+| `DELETE /attachments/:id` | 删除单个 | 存储层删文件 + DB 删行；`204`；记录本体与其他附件不受影响（R7） |
+
+### 4.4 汇总 stats（F09，M2，G3）
+
+| 方法 路径 | 说明 | 请求/响应要点 |
+| --- | --- | --- |
+| `GET /stats/summary` | 月/年卡片+分布 | 无必选参数（固定东八区当前自然月/年）；`data: { month:{ totalCount, validCount, validAmount, voidedCount, reversedCount }, year:{同构}, distribution:[ {category, medium, count, amount} ×4 ] }`；`validAmount` 为**红冲冲减后净值**（可为负，如 `"-2000.00"`，R10 负数正常渲染）；空数据返回全 0 + 空分布数组，不报错 |
+
+### 4.5 回收站 recycle（F06/F12，M2）
+
+| 方法 路径 | 说明 | 请求/响应要点 |
+| --- | --- | --- |
+| `GET /recycle/items` | 回收站列表 | 仅 `deletedAt` 非空的本人记录，按 `deletedAt` 倒序；每条含 `deletedAt`、`daysLeft`（30−已过天数，服务端计算）；`page`/`page_size` 同全局约定 |
+| `POST /recycle/items/:id/restore` | 恢复 | 置空 `deletedAt`（回原排序位=列表按开票日期排序天然满足）；附件随之可用；`204`；`daysLeft≤0`（已被 cron 清理）→ `404 INV_001` |
+| `DELETE /recycle/items/:id` | 彻底删除 | 二次确认后的物理清除：事务删 DB 行（级联附件行）+ 删存储文件；`204`；不可恢复 |
+
+### 4.6 埋点与运维 events / health
+
+| 方法 路径 | 说明 | 请求/响应要点 |
+| --- | --- | --- |
+| `POST /events` | 埋点批量上报 | `{ events:[{name, reason?, dims?, clientTime}] }` ≤50 条/批；`navigator.sendBeacon` 发送（无 Cookie 依赖问题，登录前后均可带 userId 可空）；总是 `204`（**埋点失败静默**，不阻塞业务） |
+| `GET /health` | 健康检查 | 无认证；`200 {status:"ok", db:"up"}`；DB 不可达 `503`（拨测与 Compose 健康探测用） |
+
+## 5. 请求/响应示例
+
+```
+GET /api/v1/invoices?month=2026-08&title=科技&amountMin=1000&amountMax=5000&medium=electronic&status=normal&page=1&page_size=20
+Cookie: tw_session=…;  X-Requested-With(仅写接口要求)
+```
+
+```json
+{
+  "data": {
+    "items": [
+      {
+        "id": "8f3c…", "issuedDate": "2026-08-21", "title": "杭州某科技有限公司",
+        "invoiceCode": "033001900111", "invoiceNumber": "****5678",
+        "amount": "3000.00", "taxAmount": "180.00", "totalAmount": "3180.00",
+        "category": "general", "medium": "electronic", "status": "normal",
+        "attachmentCount": 2, "createdAt": "2026-08-21T09:30:00Z"
+      }
+    ],
+    "total": 25, "page": 1, "page_size": 20
+  }
+}
+```
+
+```json
+{
+  "error": {
+    "code": "INV_002",
+    "message": "提交内容有误，请检查后重试",
+    "details": [
+      { "field": "invoiceNumber", "message": "发票号码需为 8–20 位数字" },
+      { "field": "issuedDate", "message": "开票日期不能晚于今天" }
+    ]
+  }
+}
+```
+
+## 6. 错误码规范
+
+格式：`域前缀_三位序号`，常量收敛于 `packages/shared/src/error-codes.ts`（前后端同源）。HTTP 状态码表意、业务 code 表因。
+
+| code | HTTP | 场景（对应验收） | message（用户可读，唯一口径） |
+| --- | --- | --- | --- |
+| `AUTH_001` | 401 | 账号或密码错误（F02） | 账号或密码错误 |
+| `AUTH_002` | 423 | 连续 5 次失败锁定（F02） | 账号已锁定，请 {n} 分钟后重试 |
+| `AUTH_003` | 401 | 未登录/会话过期（R9 全局 401 拦截） | 登录已过期，请重新登录 |
+| `AUTH_004` | 409 | 标识已注册（F01） | 该邮箱/手机号已注册，请直接登录 |
+| `AUTH_005` | 422 | 注册/登录格式校验失败（F01） | 账号或密码格式不正确 |
+| `INV_001` | 404 | 记录不存在/非本人（F07、IA §6） | 记录不存在或已删除 |
+| `INV_002` | 422 | 发票字段校验失败（F04/F05/R3 校验矩阵） | 提交内容有误（details 逐字段） |
+| `INV_003` | 422 | 筛选参数非法（min>max、month 格式错） | 筛选条件有误（details 指明字段） |
+| `ATT_001` | 422 | 单文件 >10MB（F11） | 单个附件不能超过 10MB |
+| `ATT_002` | 422 | 每记录 >3 个（F11） | 每条发票最多 3 个附件 |
+| `ATT_003` | 422 | 格式不支持（F11，含魔数不符） | 仅支持图片（jpg/png/webp）或 PDF |
+| `EXP_001` | 422 | 导出 >5000 条（F10/R6） | 超过单次导出上限 5000 条，请缩小筛选范围 |
+| `RATE_001` | 429 | 请求频率超限（Caddy/守卫层） | 操作太频繁，请稍后再试 |
+| `SYS_001` | 500 | 未预期服务端错误（日志含 requestId） | 服务开小差了，请稍后重试 |
+| `SYS_002` | 503 | 数据库/依赖不可用（health 探测） | 服务暂不可用，请稍后重试 |
+
+规范细则：
+
+1. **5xx message 永不泄露内部细节**（堆栈、SQL）；`X-Request-Id` 响应头供 support 反查 pino 日志；
+2. `details[].field` 与前端表单字段名（=shared schema 字段名）严格一致，行内错误定位（R1/R3）；
+3. 新增错误码必须同时登记本表与 `error-codes.ts`，两处漂移以本文为准并在 PR 中同步。
+
+## 7. 安全约定（G4）
+
+1. 除 `POST /auth/register`、`POST /auth/login`、`POST /events`、`GET /health` 外，全部接口需登录（SessionAuthGuard）；
+2. 资源级接口（含 `:id`/`:id/file`）叠加 OwnershipGuard：`findFirst({ where:{ id, userId } })` 查无 → `404 INV_001`；
+3. 列表类接口 `invoiceNumber` 默认掩码；全号仅出现在详情、导出、`show_sensitive=1` 列表；
+4. Cookie 不含业务数据（仅不透明 session ID）；日志不落密码、不落全号（掩码后可落）；
+5. 登录接口按账号维度限速（DB 计数锁定为主，Caddy 限流为辅）。
+
+## 8. 验收标准与后续行动
+
+### 8.1 验收标准
+
+- [x] F01–F15（除 Won't 与纯前端项 F14/F13 切换交互）每个功能至少有一个接口承载，验收条目可按本文断言
+- [x] 双端分页（桌面翻页/移动加载更多）由同一接口 + page/page_size 满足
+- [x] 错误码、响应包络、脱敏边界、越权 404 语义、时区/金额传输格式形成唯一口径
+- [x] R1–R10 每条流程的 API 触点可从 §4 表格反查（如 R6 导出 → export 预检/流式/BOM）
+
+### 8.2 后续行动
+
+1. 开发会话以本文为契约实现，NestJS swagger 生成物须与本文一致性 diff（CI 检查）；
+2. `packages/shared/src` 首批产出：`invoice.schema.ts` + `error-codes.ts` + `events.ts`；
+3. Q1（忘记密码）若纳入 M2：增补 `POST /auth/forgot` / `POST /auth/reset`，预留 `AUTH_006+` 序号与 `/forgot-password` 路由（IA §7.2 后续行动 4）。

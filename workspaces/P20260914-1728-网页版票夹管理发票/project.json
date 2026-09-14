@@ -27,8 +27,14 @@
      "decisions": ["发票类型按票种×介质双维度建模，筛选按章程字面四选", "发票代码选填兼容数电票，号码必填8-20位", "汇总口径：正常计有效金额、红冲负冲减、作废仅计张数", "附件定级Should（M2必达）", "脱敏底线：号码留末4位，详情与CSV导出不脱敏"],
      "risks": ["忘记密码未入MVP，待确认Q1，或成客服高频问题", "北极星主口径与首月人均目标为假设需上线校准", "脱敏字段范围待designer回签"],
      "docs": ["01_product/PRD.md", "01_product/features.md", "01_product/user-stories.md", "01_product/metrics.md"],
-     "error": "", "ts": "2026-09-14T17:36:32+08:00"}
+     "error": "", "ts": "2026-09-14T17:36:32+08:00"},
+    {"role": "designer", "status": "done",
+     "summary": "设计阶段完成：Design Tokens全量（hex/px实值）、站点地图与双端导航、P01-P08页面五状态清单、R1-R10交互流程含异常兜底、W1-W8线框图。质量门禁5/5通过。",
+     "decisions": ["Q2回签：抬头不脱敏（识别检索主字段），维持号码留末4位+账号脱敏，详情与CSV不脱敏，给出全站脱敏矩阵", "状态色唯一映射：正常绿/作废灰/红冲红，颜色+文字双通道", "一级导航3项（票夹/汇总/回收站），新增发票顶栏主按钮+移动FAB", "空态双型：首录引导型vs筛选无果型", "筛选与页码入URL query", "两级删除文案区分：回收站30天可恢复vs彻底删除不可恢复"],
+     "risks": ["忘记密码Q1未决：登录页预留客服入口位，纳入M2需增R11", "移动加载更多vs桌面分页两种形态需tech确认同一分页API覆盖（风险低）", "高保真视觉稿不产出，品牌升级需二期"],
+     "docs": ["02_design/design-spec.md", "02_design/information-architecture.md", "02_design/pages.md", "02_design/interactions.md", "02_design/wireframes.md"],
+     "error": "", "ts": "2026-09-14T17:44:49+08:00"}
   ],
   "issues": [],
-  "versions": ["9c06cd0 chore: 初始化项目 P20260914-1728-网页版票夹管理发票", "cec3615 phase:planner P20260914-1728-网页版票夹管理发票", "2ae1bfa phase:pm P20260914-1728-网页版票夹管理发票"]
+  "versions": ["9c06cd0 chore: 初始化项目 P20260914-1728-网页版票夹管理发票", "cec3615 phase:planner P20260914-1728-网页版票夹管理发票", "2ae1bfa phase:pm P20260914-1728-网页版票夹管理发票", "de4e90a phase:designer P20260914-1728-网页版票夹管理发票"]
 }
