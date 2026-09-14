@@ -39,8 +39,14 @@
      "decisions": ["前后端同构TypeScript，zod schema三端共享（packages/shared）", "服务端Session+HttpOnly Cookie（弃JWT），argon2id哈希，bcrypt为降级路径", "G2靠PG索引（user_id+issued_date部分索引、pg_trgm GIN抬头模糊），不引入Redis", "G4双层守卫SessionAuthGuard+OwnershipGuard，越权一律404，列表服务端掩码号码", "汇总口径A3收敛为stats模块单一实现点；CSV导出count预检+流式+BOM"],
      "risks": ["微信内置浏览器WebView/Cookie兼容差异→M1 E2E加webkit视口对冲", "多会话接力风格漂移→目录即架构+禁止横向import+PR关联验收编号", "单机容灾RPO24h/RTO2h→每日pg_dump+附件rsync异机+季度演练"],
      "docs": ["03_engineering/tech-stack.md", "03_engineering/architecture.md", "03_engineering/repo-layout.md", "03_engineering/api-design.md", "03_engineering/engineering-plan.md"],
-     "error": "", "ts": "2026-09-14T17:53:58+08:00"}
+     "error": "", "ts": "2026-09-14T17:53:58+08:00"},
+    {"role": "ops", "status": "done",
+     "summary": "运维体系完成：三环境划分与12步上线、tag驱动发布+30秒健康门禁自动回退、四黄金信号监控（P95<500ms/可用性≥99.5%）、RPO24h/RTO2h备份容灾+季度演练一票否决、10类故障Runbook。门禁5/5通过。",
+     "decisions": ["环境三分：dev/staging与生产同VPS独立compose project三重隔离，M3试运行7天=真实灰度", "发布：tag驱动+滚动重建（api<10s，PG与数据卷不动），窗口周四21:00东八区", "监控轻量化：拨测+pino日志+每日巡检三层，不部署Prometheus", "备份防误删：版本化桶+rsync不带--delete+孤儿对账；pg_dump AES-256加密口令离线", "恢复演练为M3上线一票否决项"],
+     "risks": ["staging与生产同机互抢资源→compose内存限额（staging≤512MB）", "单人值班总线风险→support电话升级+手册可照抄执行", "ACME续期失败→巡检14天前置告警，宁短停机不裸HTTP", "备份窗口内数据丢失（RPO24h）→回收站30天兜人为误删，备份兜机器级灾难"],
+     "docs": ["04_ops/deployment.md", "04_ops/cicd.md", "04_ops/monitoring.md", "04_ops/backup-dr.md", "04_ops/runbook.md"],
+     "error": "", "ts": "2026-09-14T17:59:51+08:00"}
   ],
   "issues": [],
-  "versions": ["9c06cd0 chore: 初始化项目 P20260914-1728-网页版票夹管理发票", "cec3615 phase:planner P20260914-1728-网页版票夹管理发票", "2ae1bfa phase:pm P20260914-1728-网页版票夹管理发票", "de4e90a phase:designer P20260914-1728-网页版票夹管理发票", "6b9278c phase:tech P20260914-1728-网页版票夹管理发票"]
+  "versions": ["9c06cd0 chore: 初始化项目 P20260914-1728-网页版票夹管理发票", "cec3615 phase:planner P20260914-1728-网页版票夹管理发票", "2ae1bfa phase:pm P20260914-1728-网页版票夹管理发票", "de4e90a phase:designer P20260914-1728-网页版票夹管理发票", "6b9278c phase:tech P20260914-1728-网页版票夹管理发票", "259f7aa phase:ops P20260914-1728-网页版票夹管理发票"]
 }
