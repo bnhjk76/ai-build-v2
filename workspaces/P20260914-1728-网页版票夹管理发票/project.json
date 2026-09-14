@@ -45,8 +45,14 @@
      "decisions": ["环境三分：dev/staging与生产同VPS独立compose project三重隔离，M3试运行7天=真实灰度", "发布：tag驱动+滚动重建（api<10s，PG与数据卷不动），窗口周四21:00东八区", "监控轻量化：拨测+pino日志+每日巡检三层，不部署Prometheus", "备份防误删：版本化桶+rsync不带--delete+孤儿对账；pg_dump AES-256加密口令离线", "恢复演练为M3上线一票否决项"],
      "risks": ["staging与生产同机互抢资源→compose内存限额（staging≤512MB）", "单人值班总线风险→support电话升级+手册可照抄执行", "ACME续期失败→巡检14天前置告警，宁短停机不裸HTTP", "备份窗口内数据丢失（RPO24h）→回收站30天兜人为误删，备份兜机器级灾难"],
      "docs": ["04_ops/deployment.md", "04_ops/cicd.md", "04_ops/monitoring.md", "04_ops/backup-dr.md", "04_ops/runbook.md"],
-     "error": "", "ts": "2026-09-14T17:59:51+08:00"}
+     "error": "", "ts": "2026-09-14T17:59:51+08:00"},
+    {"role": "support", "status": "done",
+     "summary": "客服体系完成：FAQ八大主题58条Q/A+15错误码速查表（与api-design逐字对齐）；SOP接待/投诉/免费口径补偿工具箱；工单P0-P3四级（与ops告警显式映射）SLA到分钟；反馈闭环四渠道+五条回流去向。门禁4/4通过。",
+     "decisions": ["忘记密码按人工核验+tech重置P1预案承接（Q1未决期间），每次受理计入证据链催办Q1", "RPO/RTO与回收站边界为红线话术：备份仅兜整机灾难，禁止暗示可定点恢复单条", "一期免费：退款按无此场景+补偿走非现金工具箱，商业化政策留占位", "越权口径与系统404对齐：不确认他人账号/记录存在性"],
+     "risks": ["人工核验强度有限（MVP无短信验证码）→双人在线+原邮箱告警+留痕", "单人值班覆盖缺口→P0工单30分钟无响应电话升级", "客服邮箱与FAQ反馈入口为占位，上线前须替换", "MVP无客服后台，接触用户数据仅限最小截图范围"],
+     "docs": ["05_support/faq.md", "05_support/sop.md", "05_support/ticketing.md", "05_support/feedback-loop.md"],
+     "error": "", "ts": "2026-09-14T18:07:56+08:00"}
   ],
   "issues": [],
-  "versions": ["9c06cd0 chore: 初始化项目 P20260914-1728-网页版票夹管理发票", "cec3615 phase:planner P20260914-1728-网页版票夹管理发票", "2ae1bfa phase:pm P20260914-1728-网页版票夹管理发票", "de4e90a phase:designer P20260914-1728-网页版票夹管理发票", "6b9278c phase:tech P20260914-1728-网页版票夹管理发票", "259f7aa phase:ops P20260914-1728-网页版票夹管理发票"]
+  "versions": ["9c06cd0 chore: 初始化项目 P20260914-1728-网页版票夹管理发票", "cec3615 phase:planner P20260914-1728-网页版票夹管理发票", "2ae1bfa phase:pm P20260914-1728-网页版票夹管理发票", "de4e90a phase:designer P20260914-1728-网页版票夹管理发票", "6b9278c phase:tech P20260914-1728-网页版票夹管理发票", "259f7aa phase:ops P20260914-1728-网页版票夹管理发票", "b3c6603 phase:support P20260914-1728-网页版票夹管理发票"]
 }
