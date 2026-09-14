@@ -6,13 +6,23 @@
   "created_at": "2026-09-14T17:28:29+08:00",
   "charter": {
     "name": "票夹通 —— 网页版发票票夹管理",
-    "one_liner": "一个网页应用：帮助个人用户与小商户把开过的每一张发票收进云端票夹，随时 searchable、可追溯、可导出。",
-    "goals": [],
+    "one_liner": "一个网页版发票票夹应用：把开过的每一张发票集中收录、随时翻查，回答我到底开过哪些发票。",
+    "goals": [
+      "G1 录入开票记录，首次录入到保存 ≤2 分钟",
+      "G2 多维检索（月份/抬头/金额/类型/状态）≤1 秒",
+      "G3 月度/年度汇总 + CSV 导出",
+      "G4 账号隔离、传输加密、脱敏展示",
+      "G5 交付可部署 MVP 的完备文档与脚手架"
+    ],
     "phases": ["planner", "pm", "designer", "tech", "ops", "support", "finance"]
   },
   "phases": [
-    {"role": "planner", "status": "pending", "summary": "", "decisions": [], "risks": [], "docs": [], "error": "", "ts": ""}
+    {"role": "planner", "status": "done",
+     "summary": "章程完成：定位为面向个人与小商户的网页版开票记录票夹；范围聚焦手工录入+多维检索+汇总导出，OCR与税务接口列范围外；目标G1-G5可衡量；里程碑M0-M3，本流程负责M0文档与脚手架。",
+     "decisions": ["主场景定为开票方（销项）记录台账，不做进项管理", "MVP 手工录入，OCR 二期", "一期单用户私有，不做协作共享"],
+     "risks": ["发票数据敏感的合规疑虑→一期脱敏+加密+不做对外接口", "subagent 产出不合格→重派一次后按骨架兜底记 degraded"],
+     "docs": ["00_charter/charter.md"], "error": "", "ts": "2026-09-14T17:29:37+08:00"}
   ],
   "issues": [],
-  "versions": []
+  "versions": ["9c06cd0 chore: 初始化项目 P20260914-1728-网页版票夹管理发票", "cec3615 phase:planner P20260914-1728-网页版票夹管理发票"]
 }
