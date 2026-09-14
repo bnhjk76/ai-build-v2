@@ -1,0 +1,18 @@
+{
+  "project_id": "P20260914-1728-网页版票夹管理发票",
+  "name": "票夹通 —— 网页版发票票夹管理",
+  "requirement": "我想做一个网页版本票夹管理，用户可以知道自己开过了哪些发票",
+  "status": "running",
+  "created_at": "2026-09-14T17:28:29+08:00",
+  "charter": {
+    "name": "票夹通 —— 网页版发票票夹管理",
+    "one_liner": "一个网页应用：帮助个人用户与小商户把开过的每一张发票收进云端票夹，随时 searchable、可追溯、可导出。",
+    "goals": [],
+    "phases": ["planner", "pm", "designer", "tech", "ops", "support", "finance"]
+  },
+  "phases": [
+    {"role": "planner", "status": "pending", "summary": "", "decisions": [], "risks": [], "docs": [], "error": "", "ts": ""}
+  ],
+  "issues": [],
+  "versions": []
+}
