@@ -37,3 +37,8 @@
 | 20260915114849-66c4a5 | P20260914-1728-网页版票夹管理发票 | compliance | 合规评估报告 —— 票夹通（TicketWallet）网页版发票票夹 | 07_compliance/legal-assessment.md | 合规评估,个保法,风险 | 18项法规义务映射+9项风险评估（高4/中5）：落盘加密/隐私政策/注销通道/附件敏感信息为高风险，附局限性声明 |
 | 20260915114849-cebb42 | P20260914-1728-网页版票夹管理发票 | compliance | 隐私政策与用户协议核心条款草案 —— 票夹通（TicketWallet） | 07_compliance/privacy-policy-draft.md | 隐私政策,用户协议 | 隐私政策与用户协议核心条款草案：保存期限矩阵、删除导出注销权利、单独同意、落地清单L1-L6 |
 | 20260915114849-78b229 | P20260914-1728-网页版票夹管理发票 | compliance | 合规整改计划 —— 票夹通（TicketWallet） | 07_compliance/remediation-plan.md | 整改计划,P0P1P2 | T1-T11整改项按优先级映射到工程文档章节级修改位置+验收标准+里程碑门禁 |
+| 20260915135032-bd9177 | P20260914-1728-网页版票夹管理发票 | tech | 技术选型 —— 票夹通（TicketWallet） | 03_engineering/tech-stack.md | 技术选型,技术栈变更,SpringBoot | v2.0技术栈变更：SpringBoot4.1.1+MyBatis-Flex1.11.8+JDK25 LTS；Maven选型+Spring Session JDBC+Argon2+OpenAPI契约重建（D6决策） |
+| 20260915135032-bae3fd | P20260914-1728-网页版票夹管理发票 | tech | 系统架构 —— 票夹通（TicketWallet） | 03_engineering/architecture.md | 架构,技术栈变更,Java | v2.0架构：八项既有决策落位Java等价物（Session删行/404语义/PG索引），单机单体拓扑不变，契约机制OpenAPI单一源 |
+| 20260915135032-e202b7 | P20260914-1728-网页版票夹管理发票 | tech | 工程目录规划 —— 票夹通（TicketWallet） | 03_engineering/repo-layout.md | 目录规划,脚手架,Java | v2.0目录树30目录：server(Maven)/web(pnpm)/contracts(openapi.json)/deploy四区并列，弃Gradle多模块 |
+| 20260915135032-4220e0 | P20260914-1728-网页版票夹管理发票 | tech | API 设计 —— 票夹通（TicketWallet） | 03_engineering/api-design.md | API设计,OpenAPI | v2.0 API：22端点+15错误码语义全继承+新增AUTH_006（CSRF头缺失403）；springdoc生成+orval前端代码gen约定 |
+| 20260915135032-118461 | P20260914-1728-网页版票夹管理发票 | tech | 工程计划 —— 票夹通（TicketWallet） | 03_engineering/engineering-plan.md | 工程计划,spike | v2.0工程计划：W1首日Boot4.1.1×JDK25×Flex组合spike（48h出结论）；CI三道防线防契约漂移；镜像<350MB/RSS≤550MB预算 |
