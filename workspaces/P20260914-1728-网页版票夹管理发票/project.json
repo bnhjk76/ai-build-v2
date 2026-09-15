@@ -60,5 +60,16 @@
      "error": "", "ts": "2026-09-14T18:15:22+08:00"}
   ],
   "issues": [],
+  "human_decisions": {
+    "decided_at": "2026-09-15",
+    "items": [
+      {"id": "D1", "topic": "忘记密码", "decision": "纳入M2（邮箱验证码自助找回），M1期间support人工预案承接", "status": "decided"},
+      {"id": "D2", "topic": "北极星主口径", "decision": "双口径并行上报，上线1-2个月后校准定主口径", "status": "decided"},
+      {"id": "D3", "topic": "合规评估", "decision": "立即评估（M1开发启动前完成），需用户安排专业人士", "status": "decided", "action": "A1"},
+      {"id": "D4", "topic": "客服邮箱与反馈入口", "decision": "暂用占位符，M3上线前统一替换", "status": "decided", "action": "A4"},
+      {"id": "D5", "topic": "M1-M3开发成本回填", "decision": "维持粗估，开发完成后回填", "status": "deferred", "action": "A5"}
+    ],
+    "record": "00_charter/decisions.md"
+  },
   "versions": ["9c06cd0 chore: 初始化项目 P20260914-1728-网页版票夹管理发票", "cec3615 phase:planner P20260914-1728-网页版票夹管理发票", "2ae1bfa phase:pm P20260914-1728-网页版票夹管理发票", "de4e90a phase:designer P20260914-1728-网页版票夹管理发票", "6b9278c phase:tech P20260914-1728-网页版票夹管理发票", "259f7aa phase:ops P20260914-1728-网页版票夹管理发票", "b3c6603 phase:support P20260914-1728-网页版票夹管理发票", "10c5d33 phase:finance P20260914-1728-网页版票夹管理发票"]
 }
