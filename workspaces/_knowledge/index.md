@@ -42,3 +42,8 @@
 | 20260915135032-e202b7 | P20260914-1728-网页版票夹管理发票 | tech | 工程目录规划 —— 票夹通（TicketWallet） | 03_engineering/repo-layout.md | 目录规划,脚手架,Java | v2.0目录树30目录：server(Maven)/web(pnpm)/contracts(openapi.json)/deploy四区并列，弃Gradle多模块 |
 | 20260915135032-4220e0 | P20260914-1728-网页版票夹管理发票 | tech | API 设计 —— 票夹通（TicketWallet） | 03_engineering/api-design.md | API设计,OpenAPI | v2.0 API：22端点+15错误码语义全继承+新增AUTH_006（CSRF头缺失403）；springdoc生成+orval前端代码gen约定 |
 | 20260915135032-118461 | P20260914-1728-网页版票夹管理发票 | tech | 工程计划 —— 票夹通（TicketWallet） | 03_engineering/engineering-plan.md | 工程计划,spike | v2.0工程计划：W1首日Boot4.1.1×JDK25×Flex组合spike（48h出结论）；CI三道防线防契约漂移；镜像<350MB/RSS≤550MB预算 |
+| 20260915140403-681e98 | P20260914-1728-网页版票夹管理发票 | ops | 部署方案 —— 票夹通（TicketWallet） | 04_ops/deployment.md | 部署,技术栈变更,Java | v1.1对齐D6：api改SpringBoot/JDK25（端口8080，Maven多阶段+分层镜像<350MB），Flyway随启动迁移，12步框架与三层回滚不变 |
+| 20260915140403-41c9e3 | P20260914-1728-网页版票夹管理发票 | ops | CI/CD 方案 —— 票夹通（TicketWallet） | 04_ops/cicd.md | CICD,技术栈变更 | v1.1：web/server双job流水线（pnpm+mvnw），契约三道防线嵌入，安全固定项四→五条，tag驱动+30s门禁回退不变 |
+| 20260915140403-c8baac | P20260914-1728-网页版票夹管理发票 | ops | 监控告警方案 —— 票夹通（TicketWallet） | 04_ops/monitoring.md | 监控,技术栈变更,JVM | v1.1：新增JVM内存/GC巡检（RSS>600MB P2/>660MB P1/OOM P0），/api/v1/health端点不变，Actuator仅内网 |
+| 20260915140403-5840e2 | P20260914-1728-网页版票夹管理发票 | ops | 备份与容灾方案 —— 票夹通（TicketWallet） | 04_ops/backup-dr.md | 备份,技术栈变更 | v1.1：全库清单+SPRING_SESSION两表与flyway_schema_history，迁移失败恢复改dump+修复脚本重放，RPO/RTO不变 |
+| 20260915140403-d18f7f | P20260914-1728-网页版票夹管理发票 | ops | 故障处置手册（Runbook）—— 票夹通（TicketWallet） | 04_ops/runbook.md | runbook,技术栈变更,JVM | v1.1：故障卡片10→12类（新增F11 JVM内存异常、F12启动失败），排查入口加OOMKilled/requestId，框架保留 |
