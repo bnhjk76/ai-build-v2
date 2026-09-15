@@ -19,8 +19,8 @@
 | 0 | planner（主 Agent） | done | 1 | — | 章程完成：定位开票方销项台账，G1-G5 可衡量，范围明确，六阶段计划 |
 | 1 | pm | done | 4 | 4/4 ✅ | PRD/功能清单 F01-F15（MoSCoW+验收标准）/用户故事 US01-US15/指标与 30+ 埋点字典 |
 | 2 | designer | done | 5 | 5/5 ✅ | Design Tokens（hex/px 实值）/信息架构与双端导航/P01-P08 五状态/R1-R10 流程/W1-W8 线框图；回签 Q2 脱敏 |
-| 3 | tech | done | 5 | 5/5 ✅ | React18+Vite+TS / NestJS+Prisma+PG16 / Caddy；30 目录 monorepo 已物化 scaffold/；22 接口+15 错误码 |
-| 4 | ops | done | 5 | 5/5 ✅ | 三环境 12 步上线、tag 驱动发布+30s 健康门禁回退、四黄金信号监控、RPO24h/RTO2h、10 类故障 Runbook |
+| 3 | tech | done | 5 | 5/5 ✅ | **v2.0（D6 技术栈变更重跑，2026-09-15）**：Spring Boot 4.1.1 + MyBatis-Flex 1.11.8 + JDK 25 LTS（Maven）；前端 React18+Vite+TS / PG16 / Caddy 不变；契约重建为 OpenAPI 3 单一源；scaffold 已按 Java 结构重新物化（30 目录）。v1.0 NestJS 方案留档知识库 |
+| 4 | ops | done | 5 | 5/5 ✅ | 三环境 12 步上线、tag 驱动发布+30s 健康门禁回退、四黄金信号监控、RPO24h/RTO2h；**v1.1（D6 对齐）**：api 容器 Java 化、CI 双 job、JVM 指标入巡检、Runbook 10→12 类 |
 | 5 | support | done | 4 | 4/4 ✅ | 58 条 FAQ+错误码速查、SOP 与话术红线、P0-P3 工单 SLA、四渠道反馈闭环 |
 | 6 | finance | done | 4 | 4/4 ✅ | 单次全流程成本 ¥0.31；12 个月三场景收入 ¥252/¥1,919/¥16,430；LTV/CAC=3.5 |
 | 7 | compliance（扩展） | done | 3 | 3/3 ✅ | D3 合规评估：18 项义务映射、风险 高4/中5，隐私政策草案 + 整改计划 T1-T11（2026-09-15 增补） |
@@ -38,10 +38,12 @@
 - 一级导航仅 3 项（票夹/汇总/回收站）；状态色唯一映射（正常绿/作废灰/红冲红）+ 文字双通道
 - 筛选条件与页码入 URL query；空态双型（首录引导 vs 筛选无果）
 
-**技术**（tech）
-- 前后端同构 TypeScript，zod schema 三端共享（packages/shared）——校验规则单一来源
-- 服务端 Session + HttpOnly Cookie（弃 JWT）；argon2id 密码哈希；G2 靠 PG 索引不引入 Redis
-- 越权一律 404 防存在性探测；列表服务端掩码发票号码（纵深防御）
+**技术**（tech v2.0，D6 技术栈变更后）
+- 后端 Spring Boot 4.1.1 + MyBatis-Flex 1.11.8 + JDK 25 LTS，Maven 构建；前端 React18+Vite+TS、PG16、Caddy 不变
+- 契约机制重建为 OpenAPI 3 单一源：springdoc 导出 contracts/openapi.json → orval 生成前端类型/客户端，CI 三道防线防多会话漂移
+- 会话 Spring Session JDBC（登出删行立即失效）；Argon2 密码哈希（BCrypt 降级）；越权一律 404；G2 靠 PG 索引不引入缓存层
+- 数据库迁移 Prisma → Flyway（ER/索引 1:1 继承）；所有权守卫改 loadOwned 谓词纪律 + 越权矩阵测试
+- 关键风险前置：Boot×JDK×Flex 组合 M1 W1 首日 spike（48h 出结论，JDK 21 降级序列）；JVM 内存预算 M3 W6 实测
 
 **运维**（ops）
 - dev/staging/生产同 VPS 独立 compose project 三重隔离；M3 试运行 7 天 = 真实灰度
@@ -70,7 +72,7 @@
 - 章程：`00_charter/charter.md`
 - 产品（4）：`01_product/` PRD.md ｜ features.md ｜ user-stories.md ｜ metrics.md
 - 设计（5）：`02_design/` design-spec.md ｜ information-architecture.md ｜ pages.md ｜ interactions.md ｜ wireframes.md
-- 技术（5 + 脚手架）：`03_engineering/` tech-stack.md ｜ architecture.md ｜ repo-layout.md ｜ api-design.md ｜ engineering-plan.md ｜ `scaffold/`（30 目录，apps/web + apps/server + packages/shared + deploy）
+- 技术（5 + 脚手架）：`03_engineering/` tech-stack.md ｜ architecture.md ｜ repo-layout.md ｜ api-design.md ｜ engineering-plan.md（**均为 v2.0，D6 技术栈变更后**）｜ `scaffold/`（30 目录，已按新结构重新物化：server[Maven/Java] + web[pnpm] + contracts[openapi.json] + deploy）
 - 运维（5）：`04_ops/` deployment.md ｜ cicd.md ｜ monitoring.md ｜ backup-dr.md ｜ runbook.md
 - 客服（4）：`05_support/` faq.md ｜ sop.md ｜ ticketing.md ｜ feedback-loop.md
 - 财务（4）：`06_finance/` agent-cost-model.md ｜ revenue-model.md ｜ unit-economics.md ｜ summary.md
@@ -97,7 +99,13 @@
 | 259f7aa | phase:ops（运维 5 文档） |
 | b3c6603 | phase:support（客服 4 文档） |
 | 10c5d33 | phase:finance（财务 4 文档） |
-| （本次） | chore: 最终报告 + tag `v0.1.0-P20260914-1728-网页版票夹管理发票` |
+| 0e3595d | chore: 最终报告 + tag `v0.1.0-P20260914-1728-网页版票夹管理发票` |
+| b94ca08 | feat: 新增项目级合规评估 agent 定义（compliance） |
+| dc44f68 | phase:compliance（D3 合规评估 3 文档） |
+| 3fe4b72 | docs: D3 合规评估闭环（project.json/REPORT/decisions） |
+| 066b457 | phase:tech v2.0 技术栈变更重跑（D6：SpringBoot4.1.1+MyBatis-Flex+JDK25，五文档重写+scaffold 重新物化） |
+| 4d278d1 | phase:ops v1.1 技术栈变更对齐（D6，五文档局部对齐） |
+| （本次） | docs: D6 技术栈变更闭环更新 project.json/REPORT/decisions |
 
 ## 8. 遗留问题（issues）
 

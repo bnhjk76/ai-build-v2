@@ -47,3 +47,4 @@
 | 20260915140403-c8baac | P20260914-1728-网页版票夹管理发票 | ops | 监控告警方案 —— 票夹通（TicketWallet） | 04_ops/monitoring.md | 监控,技术栈变更,JVM | v1.1：新增JVM内存/GC巡检（RSS>600MB P2/>660MB P1/OOM P0），/api/v1/health端点不变，Actuator仅内网 |
 | 20260915140403-5840e2 | P20260914-1728-网页版票夹管理发票 | ops | 备份与容灾方案 —— 票夹通（TicketWallet） | 04_ops/backup-dr.md | 备份,技术栈变更 | v1.1：全库清单+SPRING_SESSION两表与flyway_schema_history，迁移失败恢复改dump+修复脚本重放，RPO/RTO不变 |
 | 20260915140403-d18f7f | P20260914-1728-网页版票夹管理发票 | ops | 故障处置手册（Runbook）—— 票夹通（TicketWallet） | 04_ops/runbook.md | runbook,技术栈变更,JVM | v1.1：故障卡片10→12类（新增F11 JVM内存异常、F12启动失败），排查入口加OOMKilled/requestId，框架保留 |
+| 20260915140535-f23c0f | P20260914-1728-网页版票夹管理发票 | planner | 人工决策记录 —— P20260914-1728-网页版票夹管理发票 | 00_charter/decisions.md | 决策记录,技术栈变更,D6 | D6后端技术栈变更：SpringBoot4.1.1+MyBatis-Flex1.11.8+JDK25；tech v2.0重跑+ops v1.1对齐；新行动项A6 spike/A7实测 |

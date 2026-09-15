@@ -35,17 +35,17 @@
      "docs": ["02_design/design-spec.md", "02_design/information-architecture.md", "02_design/pages.md", "02_design/interactions.md", "02_design/wireframes.md"],
      "error": "", "ts": "2026-09-14T17:44:49+08:00"},
     {"role": "tech", "status": "done",
-     "summary": "技术方案完成：单机单体 React18+Vite+TS / NestJS+Prisma+PostgreSQL16 / Caddy；30目录monorepo树已物化为scaffold/（30个.gitkeep）；API契约22接口+15错误码覆盖F01-F15与R1-R10；工程计划含周级排期与降级回滚容灾。门禁5/5通过。",
-     "decisions": ["前后端同构TypeScript，zod schema三端共享（packages/shared）", "服务端Session+HttpOnly Cookie（弃JWT），argon2id哈希，bcrypt为降级路径", "G2靠PG索引（user_id+issued_date部分索引、pg_trgm GIN抬头模糊），不引入Redis", "G4双层守卫SessionAuthGuard+OwnershipGuard，越权一律404，列表服务端掩码号码", "汇总口径A3收敛为stats模块单一实现点；CSV导出count预检+流式+BOM"],
-     "risks": ["微信内置浏览器WebView/Cookie兼容差异→M1 E2E加webkit视口对冲", "多会话接力风格漂移→目录即架构+禁止横向import+PR关联验收编号", "单机容灾RPO24h/RTO2h→每日pg_dump+附件rsync异机+季度演练"],
+     "summary": "技术方案 v2.0（2026-09-15 技术栈变更重跑，D6 决策）：后端 Spring Boot 4.1.1 + MyBatis-Flex 1.11.8 + JDK 25 LTS（Maven 构建）；前端/PG16/Caddy 不变。八项既有架构决策逐条落位 Java 等价物；契约机制由 zod 三端共享重建为 OpenAPI 3 单一源（springdoc→orval，CI 三道防线）。scaffold 已按新目录树重新物化（30 目录）。门禁 5/5 通过。v1.0（NestJS）已入库知识库留档。",
+     "decisions": ["构建选 Maven 弃 Gradle：pom 声明式无逻辑分支，多 AI 会话接力收敛性最好", "monorepo 四区并列（server[Maven]/web[pnpm]/contracts/deploy），弃 Gradle 多模块，契约工件 openapi.json 为前后端唯一耦合点", "契约链：springdoc 生成→构建期导出 contracts/openapi.json→orval 生成前端类型+客户端，CI 三道防线防漂移", "会话 Spring Session JDBC（登出删 SPRING_SESSION 行）；Argon2PasswordEncoder（BCrypt strength12 降级+前缀共存渐进重哈希）", "所有权守卫弃 AOP 注解，改 loadOwned(id,userId) 谓词纪律+越权矩阵测试；越权一律 404", "迁移 Prisma→Flyway（SQL 直写，ER/部分索引/pg_trgm 1:1 落地）；新增 AUTH_006（CSRF 头缺失 403，第 16 码）"],
+     "risks": ["Boot4.1.1×JDK25×Flex1.11.8 组合未经生产验证→M1 W1 首日强制 spike 48h 出结论，降级序列 JDK 21", "契约漂移（多会话最高频风险）→CI 三道防线+生成物禁手改纪律", "镜像/内存超 ¥50/月预算→多阶段构建+分层 jar+SerialGC+768MB limit，目标镜像<350MB/RSS≤550MB，M3 W6 实测"],
      "docs": ["03_engineering/tech-stack.md", "03_engineering/architecture.md", "03_engineering/repo-layout.md", "03_engineering/api-design.md", "03_engineering/engineering-plan.md"],
-     "error": "", "ts": "2026-09-14T17:53:58+08:00"},
+     "error": "", "ts": "2026-09-15T13:50:32+08:00"},
     {"role": "ops", "status": "done",
      "summary": "运维体系完成：三环境划分与12步上线、tag驱动发布+30秒健康门禁自动回退、四黄金信号监控（P95<500ms/可用性≥99.5%）、RPO24h/RTO2h备份容灾+季度演练一票否决、10类故障Runbook。门禁5/5通过。",
      "decisions": ["环境三分：dev/staging与生产同VPS独立compose project三重隔离，M3试运行7天=真实灰度", "发布：tag驱动+滚动重建（api<10s，PG与数据卷不动），窗口周四21:00东八区", "监控轻量化：拨测+pino日志+每日巡检三层，不部署Prometheus", "备份防误删：版本化桶+rsync不带--delete+孤儿对账；pg_dump AES-256加密口令离线", "恢复演练为M3上线一票否决项"],
      "risks": ["staging与生产同机互抢资源→compose内存限额（staging≤512MB）", "单人值班总线风险→support电话升级+手册可照抄执行", "ACME续期失败→巡检14天前置告警，宁短停机不裸HTTP", "备份窗口内数据丢失（RPO24h）→回收站30天兜人为误删，备份兜机器级灾难"],
      "docs": ["04_ops/deployment.md", "04_ops/cicd.md", "04_ops/monitoring.md", "04_ops/backup-dr.md", "04_ops/runbook.md"],
-     "error": "", "ts": "2026-09-14T17:59:51+08:00"},
+     "error": "", "ts": "2026-09-14T17:59:51+08:00（v1.1 于 2026-09-15T14:04:03+08:00 技术栈变更对齐：api 容器 Java 化、CI 双 job、JVM 指标入巡检、Runbook 10→12 类；框架不推翻，门禁 5/5 通过）"},
     {"role": "support", "status": "done",
      "summary": "客服体系完成：FAQ八大主题58条Q/A+15错误码速查表（与api-design逐字对齐）；SOP接待/投诉/免费口径补偿工具箱；工单P0-P3四级（与ops告警显式映射）SLA到分钟；反馈闭环四渠道+五条回流去向。门禁4/4通过。",
      "decisions": ["忘记密码按人工核验+tech重置P1预案承接（Q1未决期间），每次受理计入证据链催办Q1", "RPO/RTO与回收站边界为红线话术：备份仅兜整机灾难，禁止暗示可定点恢复单条", "一期免费：退款按无此场景+补偿走非现金工具箱，商业化政策留占位", "越权口径与系统404对齐：不确认他人账号/记录存在性"],
@@ -73,9 +73,10 @@
       {"id": "D2", "topic": "北极星主口径", "decision": "双口径并行上报，上线1-2个月后校准定主口径", "status": "decided"},
       {"id": "D3", "topic": "合规评估", "decision": "立即评估（M1开发启动前完成）——已由新增项目级 compliance agent 完成（AI辅助评估，不构成正式法律意见）：高风险4项，整改计划T1-T11；3处高风险结论建议条件允许时请专业人士复核", "status": "decided_and_executed", "action": "A1-done", "phase": "compliance"},
       {"id": "D4", "topic": "客服邮箱与反馈入口", "decision": "暂用占位符，M3上线前统一替换", "status": "decided", "action": "A4"},
-      {"id": "D5", "topic": "M1-M3开发成本回填", "decision": "维持粗估，开发完成后回填", "status": "deferred", "action": "A5"}
+      {"id": "D5", "topic": "M1-M3开发成本回填", "decision": "维持粗估，开发完成后回填", "status": "deferred", "action": "A5"},
+      {"id": "D6", "topic": "后端技术栈变更", "decision": "Spring Boot 4.1.1 + MyBatis-Flex 1.11.8 + JDK 25 LTS（前端/PG16/Caddy 不变）；已受控重跑 tech v2.0（五文档+scaffold 重新物化）并对齐 ops v1.1（五文档）", "status": "decided_and_executed", "action": "A6(spike)/A7(实测)", "phases": ["tech", "ops"]}
     ],
     "record": "00_charter/decisions.md"
   },
-  "versions": ["9c06cd0 chore: 初始化项目 P20260914-1728-网页版票夹管理发票", "cec3615 phase:planner P20260914-1728-网页版票夹管理发票", "2ae1bfa phase:pm P20260914-1728-网页版票夹管理发票", "de4e90a phase:designer P20260914-1728-网页版票夹管理发票", "6b9278c phase:tech P20260914-1728-网页版票夹管理发票", "259f7aa phase:ops P20260914-1728-网页版票夹管理发票", "b3c6603 phase:support P20260914-1728-网页版票夹管理发票", "10c5d33 phase:finance P20260914-1728-网页版票夹管理发票"]
+  "versions": ["9c06cd0 chore: 初始化项目 P20260914-1728-网页版票夹管理发票", "cec3615 phase:planner P20260914-1728-网页版票夹管理发票", "2ae1bfa phase:pm P20260914-1728-网页版票夹管理发票", "de4e90a phase:designer P20260914-1728-网页版票夹管理发票", "6b9278c phase:tech P20260914-1728-网页版票夹管理发票", "259f7aa phase:ops P20260914-1728-网页版票夹管理发票", "b3c6603 phase:support P20260914-1728-网页版票夹管理发票", "10c5d33 phase:finance P20260914-1728-网页版票夹管理发票", "0e3595d chore: 最终报告 P20260914-1728-网页版票夹管理发票", "b94ca08 feat: compliance agent 定义", "dc44f68 phase:compliance P20260914-1728-网页版票夹管理发票", "3fe4b72 docs: D3 合规评估闭环", "066b457 phase:tech v2.0 技术栈变更重跑（D6）", "4d278d1 phase:ops v1.1 技术栈变更对齐（D6）"]
 }
