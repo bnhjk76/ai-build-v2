@@ -57,7 +57,13 @@
      "decisions": ["单次全流程成本基准¥0.31，M0一次性成本<¥1，满足成本可控", "单位经济基准成立LTV¥116/CAC¥33=3.5，悲观0.91不成立", "盈亏平衡：基础设施口径9付费；含人力（¥500/月假设）95付费", "商业化门禁：免费期实测付费意向≥2%且月流失≤5%再启动二期支付", "finance档位单价表未规定，按旗舰假设标注可调整（降轻量省23%）"],
      "risks": ["收入全为推演，付费转化率±1pp使收入∓50%（最敏感变量）", "收入模型未计付费流失，可能高估10-20%", "M1-M3开发会话成本无给定数据，按¥6-37当量粗估待回填", "Agent单价与基础设施波动影响微小"],
      "docs": ["06_finance/agent-cost-model.md", "06_finance/revenue-model.md", "06_finance/unit-economics.md", "06_finance/summary.md"],
-     "error": "", "ts": "2026-09-14T18:15:22+08:00"}
+     "error": "", "ts": "2026-09-14T18:15:22+08:00"},
+    {"role": "compliance", "status": "done",
+     "summary": "D3合规评估完成（扩展阶段，新增项目级compliance agent）：18项法规义务映射、9项风险评估（高4/中5），产出评估报告+隐私政策草案+整改计划T1-T11。脱敏口径判定可维持；附件票面可能含银行账号构成敏感个人信息（扩张解释待核实）。",
+     "decisions": ["脱敏口径S2可维持：本人查看本人数据不构成对外提供，增加CSV导出妥善保管提示", "手工录入字段为一般个人信息；附件票面可能含金融账户构成敏感个人信息，触发单独同意+PIA", "产品是辅助台账非法定保管载体，用户5年存根联保管义务不免除（发票办法26条）", "账号注销确认MVP缺失，需M2落地（个保法15/47条）"],
+     "risks": ["R1高：数据库与附件卷落盘加密未明确（个保法51条三）→T2推荐LUKS", "R2高：无隐私政策与注册同意流程→T1/T3", "R3高：账号注销/删除通道缺失→T5", "R4高：附件敏感信息无单独同意与PIA→T6", "中风险：备份境外区域涉跨境/分类分级缺失/泄露通知预案缺失/等保定级待确认"],
+     "docs": ["07_compliance/legal-assessment.md", "07_compliance/privacy-policy-draft.md", "07_compliance/remediation-plan.md"],
+     "error": "", "ts": "2026-09-15T11:48:49+08:00"}
   ],
   "issues": [],
   "human_decisions": {
@@ -65,7 +71,7 @@
     "items": [
       {"id": "D1", "topic": "忘记密码", "decision": "纳入M2（邮箱验证码自助找回），M1期间support人工预案承接", "status": "decided"},
       {"id": "D2", "topic": "北极星主口径", "decision": "双口径并行上报，上线1-2个月后校准定主口径", "status": "decided"},
-      {"id": "D3", "topic": "合规评估", "decision": "立即评估（M1开发启动前完成），需用户安排专业人士", "status": "decided", "action": "A1"},
+      {"id": "D3", "topic": "合规评估", "decision": "立即评估（M1开发启动前完成）——已由新增项目级 compliance agent 完成（AI辅助评估，不构成正式法律意见）：高风险4项，整改计划T1-T11；3处高风险结论建议条件允许时请专业人士复核", "status": "decided_and_executed", "action": "A1-done", "phase": "compliance"},
       {"id": "D4", "topic": "客服邮箱与反馈入口", "decision": "暂用占位符，M3上线前统一替换", "status": "decided", "action": "A4"},
       {"id": "D5", "topic": "M1-M3开发成本回填", "decision": "维持粗估，开发完成后回填", "status": "deferred", "action": "A5"}
     ],

@@ -22,5 +22,6 @@
 | `04_ops/` | 运维负责人 ops | 部署 / CI-CD / 监控 / 备份容灾 / Runbook |
 | `05_support/` | 客服负责人 support | FAQ / SOP / 工单体系 / 反馈闭环 |
 | `06_finance/` | 财务分析师 finance | Agent 成本 / 收入模型 / 单位经济 / 摘要 |
+| `07_compliance/` | 合规评估师 compliance（扩展） | 合规评估报告 / 隐私政策草案 / 整改计划 |
 | `project.json` | 主 Agent 维护 | 项目状态与阶段记录 |
 | `REPORT.md` | 主 Agent 生成 | 最终执行报告 |
