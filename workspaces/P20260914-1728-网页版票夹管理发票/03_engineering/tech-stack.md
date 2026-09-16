@@ -54,7 +54,7 @@
   2. LTS 线保证至下一 LTS 前的持续安全补丁，避免追赶非 LTS 的短期升级节奏；
   3. Spring MVC 同步栈对本项目写频低、无长连接诉求的负载足够（P95 <500ms 预算余量极大），无需 WebFlux 反应式复杂度；
   4. Spring 生态的 Security/Session/事务/Actuator/测试矩阵（§3.4–§3.10）能直接兑现 v1.0 的安全与运维语义。
-- **风险标注**：Spring Boot 4.x 与 JDK 25 的组合、以及 Boot 4 对 Spring Security/Session 等子项目的版本配套，需在 **M1 W1 首日 spike 验证**（起服务、连 PG、事务、分页、session 落库五项冒烟）；Boot 4 的具体新特性本文不预设，凡引用「Boot 3 时代已有」的稳定机制处若在 4.x 有 API 变化，以官方迁移指南为准（全文以「待核实」显式标注，见 §9 风险表 R1）。
+- **风险标注**：~~Spring Boot 4.x 与 JDK 25 的组合需 W1 spike 验证~~ → **✅ 已验证通过（2026-09-16，`SPIKE-W1D1.md`）**：五项冒烟全绿（启动 2.4s / RSS 39MB / jar 32MB），JDK 21 回退位保留不启用。Boot 4 的具体新特性本文不预设，凡引用「Boot 3 时代已有」的稳定机制处若在 4.x 有 API 变化，以官方迁移指南为准（全文以「待核实」显式标注，见 §9 风险表 R1）。
 
 ### 3.2 构建工具：Maven（论证选定）
 
@@ -78,7 +78,11 @@
   - Spring Data JPA：生态第一选择，但 Criteria/Specification 动态查询冗长，pg_trgm/部分索引等 PG 特性仍要 `nativeQuery` 逃生，「一半 ORM 一半手写」对接力会话不友好，放弃；
   - MyBatis-Plus：能力与 Flex 同类，但 D6 已指定 Flex，不再摇摆；
   - jOOQ：类型安全最强，但商用数据库协议下许可证约束与学习成本高，放弃。
-- **待核实项**（进 M1 W1 spike）：① flex-spring-boot-starter 对 Spring Boot 4 自动装配的适配版本；② PG 方言配置项名称与 `like` 默认大小写行为（若默认 LIKE 区分大小写，抬头检索改用 ILIKE 原生条件或 `lower(title) LIKE lower(?)`）；③ PG enum 类型与 Java enum 的 TypeHandler 映射（不适配则降级 varchar + CHECK 约束，仅动迁移脚本不动业务代码）。
+- **待核实项**（✅ 已于 M1 W1-D1 spike 回填，2026-09-16，详见 `SPIKE-W1D1.md`）：
+  - ① ~~flex starter 对 Boot 4 的适配~~ → **`mybatis-flex-spring-boot4-starter:1.11.8`**（Maven Central 官方存在，自动装配正常）；
+  - ② ~~PG 方言 like 大小写行为~~ → 实测 Flex `QueryWrapper.like` 生成 SQL LIKE **大小写敏感**（`invoice` 命中 0），**抬头模糊检索一律走 `@Select` 原生 ILIKE**（pg_trgm GIN 已建）；
+  - ③ ~~enum TypeHandler~~ → 默认不兼容（varchar→enum 报错），**JDBC URL 加 `stringtype=unspecified`** 后读写全通，保持 PG enum 类型，无需降级 varchar+CHECK。
+  - 附加发现：Boot 4 需 **starter 形态**（`spring-boot-starter-flyway` / `spring-boot-starter-session-jdbc`）才触发自动装配；`spring.session.store-type`/`cookie-name` 已删除（cookie 名走 `server.servlet.session.cookie.name`）；**TIMESTAMPTZ 实体字段必须用 `OffsetDateTime`**（pgjdbc 拒绝 LocalDateTime 读取）。
 
 ### 3.4 会话：Spring Session JDBC（弃 JWT 语义继承）
 
@@ -109,7 +113,7 @@
 ### 3.7 契约源与 API 文档：springdoc-openapi
 
 - **决策**：springdoc-openapi 从 Controller 注解生成 OpenAPI 3 规范，构建期经 `springdoc-openapi-maven-plugin`（集成测试阶段应用拉起时抓取 `/v3/api-docs`）导出为静态契约工件 `contracts/openapi.json` 入库（§7 全流程）。
-- **待核实**：springdoc 对 Spring Boot 4.x 的兼容版本号；若 maven 插件未跟进，降级方案为一条 `@SpringBootTest` + TestRestTemplate 抓取 `/v3/api-docs` 落盘的 JUnit「契约导出器」测试（机制等价、无插件依赖）。
+- **待核实**：~~springdoc 对 Spring Boot 4.x 的兼容版本号~~ → **✅ 已核实（W1-D1）**：`springdoc-openapi-starter-webmvc-ui:3.1.1` 面向 Boot 4，`/v3/api-docs` 输出 OpenAPI **3.1.0**（5 paths 实测）；orval 对 3.1 语法的支持在契约链搭建时验证，不支则配置 springdoc 降输出 3.0。若 maven 插件未跟进，降级方案为一条 `@SpringBootTest` + TestRestTemplate 抓取 `/v3/api-docs` 落盘的 JUnit「契约导出器」测试（机制等价、无插件依赖）。
 
 ### 3.8 CSV 导出：StreamingResponseBody + BOM
 
