@@ -309,7 +309,7 @@ sequenceDiagram
             API->>DB: SELECT … WHERE … AND id>游标 ORDER BY id LIMIT 500
             API->>API: CSV转义(逗号/引号/换行)+写出(不脱敏,列序=F10)
         end
-        API-->>FE: 200 text/csv charset=utf-8(流)
+        API-->>FE: 200 text/csv; charset=utf-8(流)
         FE->>FE: Blob下载 票夹通导出_YYYYMMDD_HHmmss.csv
     end
 ```
@@ -324,7 +324,7 @@ sequenceDiagram
 flowchart LR
     A[每小时: 扫描 deleted_at < now-30d] --> B{命中?}
     B -- 否 --> Z[结束]
-    B -- 是 --> C[事务: 查附件storageKeys + 删DB行级联附件行]
+    B -- 是 --> C[事务: 查附件storageKeys + 删DB行(级联附件行)]
     C --> D[StorageService.delete 逐个删文件]
     D --> E[日志记录清除数量/耗时/requestId]
     E --> F[孤儿文件对账cron每日兜底<br/>扫描目录中无DB行的storageKey]
