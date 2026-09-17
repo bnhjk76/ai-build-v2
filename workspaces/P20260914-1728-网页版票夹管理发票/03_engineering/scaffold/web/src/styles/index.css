@@ -1,0 +1,8 @@
+@import "tailwindcss";
+@import "./tokens.css";
+
+body {
+  background: var(--color-bg-page);
+  color: var(--color-ink-900);
+  font-family: -apple-system, "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+}

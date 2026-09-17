@@ -1,0 +1,33 @@
+/* Design Tokens（design-spec §4，v1.0 全量实值；工程师可直接使用） */
+:root {
+  /* 主色：票据蓝 */
+  --color-primary-700: #1A33A6;
+  --color-primary-600: #2140C9;
+  --color-primary-500: #2B4CEE;
+  --color-primary-100: #E4EAFD;
+  --color-primary-50: #F0F3FE;
+  /* 语义色（状态映射：正常绿/作废灰/红冲红，颜色+文字双通道） */
+  --color-success-600: #16A34A; --color-success-50: #E6F6EC;
+  --color-warning-600: #D97706; --color-warning-50: #FCF1E2;
+  --color-danger-600:  #DC2626; --color-danger-50:  #FBEAEA;
+  --color-neutral-600: #64748B; --color-neutral-50: #EEF1F5;
+  --color-info-600:    #0369A1;
+  /* 墨色与线条 */
+  --color-ink-900: #131B2E;
+  --color-ink-700: #3D4A63;
+  --color-ink-500: #6B7689;
+  --color-ink-300: #A8B1C2;
+  --color-line: #E4E7EF;
+  --color-line-light: #EEF0F6;
+  --color-bg-page: #F5F6FA;
+  --color-bg-card: #FFFFFF;
+  /* 圆角 */
+  --radius-sm: 6px; --radius-md: 8px; --radius-lg: 12px; --radius-xl: 16px; --radius-full: 999px;
+  /* 字号阶梯 */
+  --text-xs: 12px; --text-sm: 14px; --text-base: 16px; --text-lg: 18px; --text-xl: 20px; --text-2xl: 24px;
+  /* 间距（4 基） */
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 24px; --space-6: 32px;
+  /* 动效节奏（DP5：只用于反馈） */
+  --motion-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --motion-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+}
