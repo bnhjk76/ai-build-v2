@@ -17,15 +17,6 @@
         },
         "type": "object"
       },
-      "ApiResponseMapStringObject": {
-        "properties": {
-          "data": {
-            "additionalProperties": {},
-            "type": "object"
-          }
-        },
-        "type": "object"
-      },
       "ApiResponseMapStringString": {
         "properties": {
           "data": {
@@ -45,24 +36,10 @@
         },
         "type": "object"
       },
-      "ApiResponseObject": {
-        "properties": {
-          "data": {}
-        },
-        "type": "object"
-      },
       "ApiResponsePageInvoiceView": {
         "properties": {
           "data": {
             "$ref": "#/components/schemas/PageInvoiceView"
-          }
-        },
-        "type": "object"
-      },
-      "ApiResponseSpikeItem": {
-        "properties": {
-          "data": {
-            "$ref": "#/components/schemas/SpikeItem"
           }
         },
         "type": "object"
@@ -99,19 +76,61 @@
       "CreateRequest": {
         "properties": {
           "amount": {
+            "minLength": 1,
             "type": "string"
           },
-          "kind": {
+          "category": {
             "enum": [
-              "ELECTRONIC",
-              "PAPER"
+              "special",
+              "general"
             ],
             "type": "string"
           },
+          "invoiceCode": {
+            "type": "string"
+          },
+          "invoiceNumber": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "issuedDate": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "medium": {
+            "enum": [
+              "electronic",
+              "paper"
+            ],
+            "type": "string"
+          },
+          "remark": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "normal",
+              "voided",
+              "reversed"
+            ],
+            "type": "string"
+          },
+          "taxAmount": {
+            "minLength": 1,
+            "type": "string"
+          },
           "title": {
+            "minLength": 1,
             "type": "string"
           }
         },
+        "required": [
+          "amount",
+          "invoiceNumber",
+          "issuedDate",
+          "taxAmount",
+          "title"
+        ],
         "type": "object"
       },
       "InvoiceView": {
@@ -206,32 +225,6 @@
           "totalRow": {
             "format": "int64",
             "type": "integer"
-          }
-        },
-        "type": "object"
-      },
-      "SpikeItem": {
-        "properties": {
-          "amount": {
-            "type": "number"
-          },
-          "createdAt": {
-            "format": "date-time",
-            "type": "string"
-          },
-          "id": {
-            "format": "int64",
-            "type": "integer"
-          },
-          "kind": {
-            "enum": [
-              "ELECTRONIC",
-              "PAPER"
-            ],
-            "type": "string"
-          },
-          "title": {
-            "type": "string"
           }
         },
         "type": "object"
@@ -368,7 +361,7 @@
     "/api/v1/invoices": {
       "get": {
         "description": "month/title(ILIKE)/amountMin-Max(作用 totalAmount)/category/medium/status 可多值逗号分隔；条件 AND、同维 OR；invoiceNumber 默认掩码，show_sensitive=1 全号",
-        "operationId": "list_1",
+        "operationId": "listInvoices",
         "parameters": [
           {
             "in": "query",
@@ -485,7 +478,7 @@
       },
       "post": {
         "description": "totalAmount 服务端重算；issuedDate 晚于今天 422 INV_002；成功 201 返回完整资源（不脱敏）",
-        "operationId": "create_1",
+        "operationId": "createInvoice",
         "requestBody": {
           "content": {
             "application/json": {
@@ -517,7 +510,7 @@
     "/api/v1/invoices/{id}": {
       "get": {
         "description": "完整字段不脱敏（详情页口径）；非本人/不存在 404 INV_001",
-        "operationId": "detail",
+        "operationId": "getInvoiceDetail",
         "parameters": [
           {
             "in": "path",
@@ -543,163 +536,6 @@
         "summary": "发票详情（F07）",
         "tags": [
           "invoices"
-        ]
-      }
-    },
-    "/api/v1/spike/count": {
-      "get": {
-        "operationId": "count",
-        "responses": {
-          "200": {
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseMapStringObject"
-                }
-              }
-            },
-            "description": "OK"
-          }
-        },
-        "tags": [
-          "spike-controller"
-        ]
-      }
-    },
-    "/api/v1/spike/items": {
-      "get": {
-        "operationId": "list",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "page",
-            "required": false,
-            "schema": {
-              "default": 1,
-              "format": "int32",
-              "type": "integer"
-            }
-          },
-          {
-            "in": "query",
-            "name": "size",
-            "required": false,
-            "schema": {
-              "default": 2,
-              "format": "int32",
-              "type": "integer"
-            }
-          },
-          {
-            "in": "query",
-            "name": "titleLike",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "query",
-            "name": "mode",
-            "required": false,
-            "schema": {
-              "default": "flex",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseObject"
-                }
-              }
-            },
-            "description": "OK"
-          }
-        },
-        "tags": [
-          "spike-controller"
-        ]
-      },
-      "post": {
-        "operationId": "create",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseSpikeItem"
-                }
-              }
-            },
-            "description": "OK"
-          }
-        },
-        "tags": [
-          "spike-controller"
-        ]
-      }
-    },
-    "/api/v1/spike/session": {
-      "get": {
-        "operationId": "session",
-        "responses": {
-          "200": {
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseMapStringObject"
-                }
-              }
-            },
-            "description": "OK"
-          }
-        },
-        "tags": [
-          "spike-controller"
-        ]
-      }
-    },
-    "/api/v1/spike/tx-rollback": {
-      "post": {
-        "operationId": "txRollback",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseMapStringObject"
-                }
-              }
-            },
-            "description": "OK"
-          }
-        },
-        "tags": [
-          "spike-controller"
         ]
       }
     }

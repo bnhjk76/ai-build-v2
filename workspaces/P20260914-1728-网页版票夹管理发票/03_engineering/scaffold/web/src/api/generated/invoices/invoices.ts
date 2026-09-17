@@ -27,7 +27,7 @@ import type {
   ApiResponseInvoiceView,
   ApiResponsePageInvoiceView,
   CreateRequest,
-  List1Params
+  ListInvoicesParams
 } from '../model';
 
 import { customClient } from '../../client';
@@ -52,19 +52,19 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   return result;
 };
 
-export type list1Response200 = {
+export type listInvoicesResponse200 = {
   data: ApiResponsePageInvoiceView
   status: 200
 }
 
-export type list1ResponseSuccess = (list1Response200) & {
+export type listInvoicesResponseSuccess = (listInvoicesResponse200) & {
   headers: Headers;
 };
 ;
 
-export type list1Response = (list1ResponseSuccess)
+export type listInvoicesResponse = (listInvoicesResponseSuccess)
 
-export const getList1Url = (params?: List1Params,) => {
+export const getListInvoicesUrl = (params?: ListInvoicesParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -91,9 +91,9 @@ export const getList1Url = (params?: List1Params,) => {
  * month/title(ILIKE)/amountMin-Max(作用 totalAmount)/category/medium/status 可多值逗号分隔；条件 AND、同维 OR；invoiceNumber 默认掩码，show_sensitive=1 全号
  * @summary 列表+五维筛选+分页（F07/F08）
  */
-export const list1 = async (params?: List1Params, options?: Parameters<typeof customClient>[1]): Promise<list1Response> => {
+export const listInvoices = async (params?: ListInvoicesParams, options?: Parameters<typeof customClient>[1]): Promise<listInvoicesResponse> => {
 
-  return customClient<list1Response>(getList1Url(params),
+  return customClient<listInvoicesResponse>(getListInvoicesUrl(params),
   {
     ...options,
     method: 'GET'
@@ -106,13 +106,13 @@ export const list1 = async (params?: List1Params, options?: Parameters<typeof cu
 
 
 
-export const getList1MutationKey = () => ['list1'] as const;
+export const getListInvoicesMutationKey = () => ['listInvoices'] as const;
 
-export const getList1MutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof list1>>, TError,List1MutationVariables, TContext>, request?: SecondParameter<typeof customClient>}
-): UseMutationOptions<Awaited<ReturnType<typeof list1>>, TError,List1MutationVariables, TContext> => {
+export const getListInvoicesMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof listInvoices>>, TError,ListInvoicesMutationVariables, TContext>, request?: SecondParameter<typeof customClient>}
+): UseMutationOptions<Awaited<ReturnType<typeof listInvoices>>, TError,ListInvoicesMutationVariables, TContext> => {
 
-const mutationKey = getList1MutationKey();
+const mutationKey = getListInvoicesMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -122,10 +122,10 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof list1>>, List1MutationVariables> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof listInvoices>>, ListInvoicesMutationVariables> = (props) => {
           const {params} = props ?? {};
 
-          return  list1(params,requestOptions)
+          return  listInvoices(params,requestOptions)
         }
 
 
@@ -135,37 +135,37 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
   return  { mutationFn, ...mutationOptions }}
 
-    export type List1MutationResult = NonNullable<Awaited<ReturnType<typeof list1>>>
+    export type ListInvoicesMutationResult = NonNullable<Awaited<ReturnType<typeof listInvoices>>>
 
-    export type List1MutationError = unknown
-    export type List1MutationVariables = {params?: List1Params}
+    export type ListInvoicesMutationError = unknown
+    export type ListInvoicesMutationVariables = {params?: ListInvoicesParams}
 
     /**
  * @summary 列表+五维筛选+分页（F07/F08）
  */
-export const useList1 = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof list1>>, TError,List1MutationVariables, TContext>, request?: SecondParameter<typeof customClient>}
+export const useListInvoices = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof listInvoices>>, TError,ListInvoicesMutationVariables, TContext>, request?: SecondParameter<typeof customClient>}
  , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof list1>>,
+        Awaited<ReturnType<typeof listInvoices>>,
         TError,
-        List1MutationVariables,
+        ListInvoicesMutationVariables,
         TContext
       > => {
-      return useMutation(getList1MutationOptions(options), queryClient);
+      return useMutation(getListInvoicesMutationOptions(options), queryClient);
     }
-    export type create1Response200 = {
+    export type createInvoiceResponse200 = {
   data: ApiResponseInvoiceView
   status: 200
 }
 
-export type create1ResponseSuccess = (create1Response200) & {
+export type createInvoiceResponseSuccess = (createInvoiceResponse200) & {
   headers: Headers;
 };
 ;
 
-export type create1Response = (create1ResponseSuccess)
+export type createInvoiceResponse = (createInvoiceResponseSuccess)
 
-export const getCreate1Url = () => {
+export const getCreateInvoiceUrl = () => {
 
 
 
@@ -177,7 +177,7 @@ export const getCreate1Url = () => {
  * totalAmount 服务端重算；issuedDate 晚于今天 422 INV_002；成功 201 返回完整资源（不脱敏）
  * @summary 新增发票（F04，G1）
  */
-export const create1 = async (createRequest: CreateRequest, options?: Parameters<typeof customClient>[1]): Promise<create1Response> => {
+export const createInvoice = async (createRequest: CreateRequest, options?: Parameters<typeof customClient>[1]): Promise<createInvoiceResponse> => {
 
     const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
@@ -193,7 +193,7 @@ export const create1 = async (createRequest: CreateRequest, options?: Parameters
     }
     return headers;
   };
-return customClient<create1Response>(getCreate1Url(),
+return customClient<createInvoiceResponse>(getCreateInvoiceUrl(),
   {
     ...options,
     method: 'POST',
@@ -206,69 +206,69 @@ return customClient<create1Response>(getCreate1Url(),
 
 
 
-export const getCreate1QueryKey = (createRequest?: CreateRequest,) => {
+export const getCreateInvoiceQueryKey = (createRequest?: CreateRequest,) => {
     return [
     'POST', `/api/v1/invoices`, createRequest
     ] as const;
     }
 
 
-export const getCreate1QueryOptions = <TData = Awaited<ReturnType<typeof create1>>, TError = unknown>(createRequest: CreateRequest, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof create1>>, TError, TData>>, request?: SecondParameter<typeof customClient>}
+export const getCreateInvoiceQueryOptions = <TData = Awaited<ReturnType<typeof createInvoice>>, TError = unknown>(createRequest: CreateRequest, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof createInvoice>>, TError, TData>>, request?: SecondParameter<typeof customClient>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getCreate1QueryKey(createRequest);
+  const queryKey =  queryOptions?.queryKey ?? getCreateInvoiceQueryKey(createRequest);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof create1>>> = ({ signal }) => create1(createRequest, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof createInvoice>>> = ({ signal }) => createInvoice(createRequest, { signal, ...requestOptions });
 
 
 
 
 
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof create1>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof createInvoice>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
 
-export type Create1QueryResult = NonNullable<Awaited<ReturnType<typeof create1>>>
-export type Create1QueryError = unknown
+export type CreateInvoiceQueryResult = NonNullable<Awaited<ReturnType<typeof createInvoice>>>
+export type CreateInvoiceQueryError = unknown
 
 
-export function useCreate1<TData = Awaited<ReturnType<typeof create1>>, TError = unknown>(
- createRequest: CreateRequest, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof create1>>, TError, TData>> & Pick<
+export function useCreateInvoice<TData = Awaited<ReturnType<typeof createInvoice>>, TError = unknown>(
+ createRequest: CreateRequest, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof createInvoice>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof create1>>,
+          Awaited<ReturnType<typeof createInvoice>>,
           TError,
-          Awaited<ReturnType<typeof create1>>
+          Awaited<ReturnType<typeof createInvoice>>
         > , 'initialData'
       >, request?: SecondParameter<typeof customClient>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useCreate1<TData = Awaited<ReturnType<typeof create1>>, TError = unknown>(
- createRequest: CreateRequest, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof create1>>, TError, TData>> & Pick<
+export function useCreateInvoice<TData = Awaited<ReturnType<typeof createInvoice>>, TError = unknown>(
+ createRequest: CreateRequest, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof createInvoice>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof create1>>,
+          Awaited<ReturnType<typeof createInvoice>>,
           TError,
-          Awaited<ReturnType<typeof create1>>
+          Awaited<ReturnType<typeof createInvoice>>
         > , 'initialData'
       >, request?: SecondParameter<typeof customClient>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useCreate1<TData = Awaited<ReturnType<typeof create1>>, TError = unknown>(
- createRequest: CreateRequest, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof create1>>, TError, TData>>, request?: SecondParameter<typeof customClient>}
+export function useCreateInvoice<TData = Awaited<ReturnType<typeof createInvoice>>, TError = unknown>(
+ createRequest: CreateRequest, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof createInvoice>>, TError, TData>>, request?: SecondParameter<typeof customClient>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary 新增发票（F04，G1）
  */
 
-export function useCreate1<TData = Awaited<ReturnType<typeof create1>>, TError = unknown>(
- createRequest: CreateRequest, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof create1>>, TError, TData>>, request?: SecondParameter<typeof customClient>}
+export function useCreateInvoice<TData = Awaited<ReturnType<typeof createInvoice>>, TError = unknown>(
+ createRequest: CreateRequest, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof createInvoice>>, TError, TData>>, request?: SecondParameter<typeof customClient>}
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getCreate1QueryOptions(createRequest,options)
+  const queryOptions = getCreateInvoiceQueryOptions(createRequest,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
@@ -280,19 +280,19 @@ export function useCreate1<TData = Awaited<ReturnType<typeof create1>>, TError =
 
 
 
-export type detailResponse200 = {
+export type getInvoiceDetailResponse200 = {
   data: ApiResponseInvoiceView
   status: 200
 }
 
-export type detailResponseSuccess = (detailResponse200) & {
+export type getInvoiceDetailResponseSuccess = (getInvoiceDetailResponse200) & {
   headers: Headers;
 };
 ;
 
-export type detailResponse = (detailResponseSuccess)
+export type getInvoiceDetailResponse = (getInvoiceDetailResponseSuccess)
 
-export const getDetailUrl = (id: string,) => {
+export const getGetInvoiceDetailUrl = (id: string,) => {
 
 
 
@@ -304,9 +304,9 @@ export const getDetailUrl = (id: string,) => {
  * 完整字段不脱敏（详情页口径）；非本人/不存在 404 INV_001
  * @summary 发票详情（F07）
  */
-export const detail = async (id: string, options?: Parameters<typeof customClient>[1]): Promise<detailResponse> => {
+export const getInvoiceDetail = async (id: string, options?: Parameters<typeof customClient>[1]): Promise<getInvoiceDetailResponse> => {
 
-  return customClient<detailResponse>(getDetailUrl(id),
+  return customClient<getInvoiceDetailResponse>(getGetInvoiceDetailUrl(id),
   {
     ...options,
     method: 'GET'
@@ -319,13 +319,13 @@ export const detail = async (id: string, options?: Parameters<typeof customClien
 
 
 
-export const getDetailMutationKey = () => ['detail'] as const;
+export const getGetInvoiceDetailMutationKey = () => ['getInvoiceDetail'] as const;
 
-export const getDetailMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof detail>>, TError,DetailMutationVariables, TContext>, request?: SecondParameter<typeof customClient>}
-): UseMutationOptions<Awaited<ReturnType<typeof detail>>, TError,DetailMutationVariables, TContext> => {
+export const getGetInvoiceDetailMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof getInvoiceDetail>>, TError,GetInvoiceDetailMutationVariables, TContext>, request?: SecondParameter<typeof customClient>}
+): UseMutationOptions<Awaited<ReturnType<typeof getInvoiceDetail>>, TError,GetInvoiceDetailMutationVariables, TContext> => {
 
-const mutationKey = getDetailMutationKey();
+const mutationKey = getGetInvoiceDetailMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -335,10 +335,10 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof detail>>, DetailMutationVariables> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof getInvoiceDetail>>, GetInvoiceDetailMutationVariables> = (props) => {
           const {id} = props ?? {};
 
-          return  detail(id,requestOptions)
+          return  getInvoiceDetail(id,requestOptions)
         }
 
 
@@ -348,21 +348,21 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
   return  { mutationFn, ...mutationOptions }}
 
-    export type DetailMutationResult = NonNullable<Awaited<ReturnType<typeof detail>>>
+    export type GetInvoiceDetailMutationResult = NonNullable<Awaited<ReturnType<typeof getInvoiceDetail>>>
 
-    export type DetailMutationError = unknown
-    export type DetailMutationVariables = {id: string}
+    export type GetInvoiceDetailMutationError = unknown
+    export type GetInvoiceDetailMutationVariables = {id: string}
 
     /**
  * @summary 发票详情（F07）
  */
-export const useDetail = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof detail>>, TError,DetailMutationVariables, TContext>, request?: SecondParameter<typeof customClient>}
+export const useGetInvoiceDetail = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof getInvoiceDetail>>, TError,GetInvoiceDetailMutationVariables, TContext>, request?: SecondParameter<typeof customClient>}
  , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof detail>>,
+        Awaited<ReturnType<typeof getInvoiceDetail>>,
         TError,
-        DetailMutationVariables,
+        GetInvoiceDetailMutationVariables,
         TContext
       > => {
-      return useMutation(getDetailMutationOptions(options), queryClient);
+      return useMutation(getGetInvoiceDetailMutationOptions(options), queryClient);
     }

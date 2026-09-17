@@ -50,7 +50,7 @@ public class InvoiceController {
         this.service = service;
     }
 
-    @Operation(summary = "新增发票（F04，G1）", description = "totalAmount 服务端重算；issuedDate 晚于今天 422 INV_002；成功 201 返回完整资源（不脱敏）")
+    @Operation(operationId = "createInvoice", summary = "新增发票（F04，G1）", description = "totalAmount 服务端重算；issuedDate 晚于今天 422 INV_002；成功 201 返回完整资源（不脱敏）")
     @PostMapping
     public ResponseEntity<ApiResponse<InvoiceView>> create(@jakarta.validation.Valid @RequestBody CreateRequest req) {
         Invoice inv = service.create(principal(), new InvoiceService.CreateInput(
@@ -59,7 +59,7 @@ public class InvoiceController {
         return ResponseEntity.status(201).body(ApiResponse.ok(view(inv, true)));  // 新建返回全号（api-design §4.2）
     }
 
-    @Operation(summary = "列表+五维筛选+分页（F07/F08）",
+    @Operation(operationId = "listInvoices", summary = "列表+五维筛选+分页（F07/F08）",
             description = "month/title(ILIKE)/amountMin-Max(作用 totalAmount)/category/medium/status 可多值逗号分隔；条件 AND、同维 OR；invoiceNumber 默认掩码，show_sensitive=1 全号")
     @GetMapping
     public ApiResponse<Page<InvoiceView>> list(
@@ -84,7 +84,7 @@ public class InvoiceController {
         return ApiResponse.ok(view);
     }
 
-    @Operation(summary = "发票详情（F07）", description = "完整字段不脱敏（详情页口径）；非本人/不存在 404 INV_001")
+    @Operation(operationId = "getInvoiceDetail", summary = "发票详情（F07）", description = "完整字段不脱敏（详情页口径）；非本人/不存在 404 INV_001")
     @GetMapping("/{id}")
     public ApiResponse<InvoiceView> detail(@PathVariable String id) {
         return ApiResponse.ok(view(service.loadOwned(principal(), id), true));

@@ -4,10 +4,24 @@
  * OpenAPI definition
  * OpenAPI spec version: v0
  */
-import type { CreateRequestKind } from './createRequestKind';
+import type { CreateRequestCategory } from './createRequestCategory';
+import type { CreateRequestMedium } from './createRequestMedium';
+import type { CreateRequestStatus } from './createRequestStatus';
 
 export interface CreateRequest {
-  amount?: string;
-  kind?: CreateRequestKind;
-  title?: string;
+  /** @minLength 1 */
+  amount: string;
+  category?: CreateRequestCategory;
+  invoiceCode?: string;
+  /** @minLength 1 */
+  invoiceNumber: string;
+  /** @minLength 1 */
+  issuedDate: string;
+  medium?: CreateRequestMedium;
+  remark?: string;
+  status?: CreateRequestStatus;
+  /** @minLength 1 */
+  taxAmount: string;
+  /** @minLength 1 */
+  title: string;
 }

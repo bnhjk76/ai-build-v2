@@ -41,7 +41,7 @@ public class AuthController {
         this.authService = authService;
     }
 
-    @Operation(summary = "注册并自动登录", description = "重复注册 409 AUTH_004；格式错误 422 AUTH_005")
+    @Operation(operationId = "register", summary = "注册并自动登录", description = "重复注册 409 AUTH_004；格式错误 422 AUTH_005")
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<AuthResponse>> register(@jakarta.validation.Valid @RequestBody AuthRequest req,
                                                               HttpServletRequest request) {
@@ -49,21 +49,21 @@ public class AuthController {
         return ResponseEntity.status(201).body(ApiResponse.ok(toResponse(user)));
     }
 
-    @Operation(summary = "登录", description = "凭据错误统一 401 AUTH_001；连续 5 次失败后锁定 423 AUTH_002（details.retryAfterMinutes）")
+    @Operation(operationId = "login", summary = "登录", description = "凭据错误统一 401 AUTH_001；连续 5 次失败后锁定 423 AUTH_002（details.retryAfterMinutes）")
     @PostMapping("/login")
     public ApiResponse<AuthResponse> login(@jakarta.validation.Valid @RequestBody AuthRequest req, HttpServletRequest request) {
         User user = authService.login(req.account(), req.password(), request);
         return ApiResponse.ok(toResponse(user));
     }
 
-    @Operation(summary = "登出（需登录）", description = "删除会话行，204")
+    @Operation(operationId = "logout", summary = "登出（需登录）", description = "删除会话行，204")
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletRequest request) {
         authService.logout(request);
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "当前会话（需登录）", description = "失效 401 AUTH_003；账号脱敏展示")
+    @Operation(operationId = "me", summary = "当前会话（需登录）", description = "失效 401 AUTH_003；账号脱敏展示")
     @GetMapping("/me")
     public ApiResponse<MeResponse> me(HttpServletRequest request) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
