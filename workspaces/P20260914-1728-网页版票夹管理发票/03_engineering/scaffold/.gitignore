@@ -1,13 +1,14 @@
-# 构建产物
-server/target/
-web/dist/
-web/node_modules/
-
-# 环境与密钥（engineering-plan §6.3：.env 不入库，CI 校验）
-.env
-.env.*
 
 # 日志与临时文件
+# 构建产物
+# 环境与密钥（engineering-plan §6.3：.env 不入库，CI 校验）
+# 附件本地卷（M2）
 *.log
 .DS_Store
+.env
+.env.*
+server/data/
+server/target/
 test-results/
+web/dist/
+web/node_modules/

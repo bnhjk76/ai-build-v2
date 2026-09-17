@@ -45,9 +45,15 @@ public class InvoiceController {
     public record ListView(InvoiceView item, long total, int page, int pageSize) {}
 
     private final InvoiceService service;
+    private final com.ticketwallet.domain.recycle.RecycleService recycleService;
+    private final InvoiceExportService exportService;
 
-    public InvoiceController(InvoiceService service) {
+    public InvoiceController(InvoiceService service,
+                             com.ticketwallet.domain.recycle.RecycleService recycleService,
+                             InvoiceExportService exportService) {
         this.service = service;
+        this.recycleService = recycleService;
+        this.exportService = exportService;
     }
 
     @Operation(operationId = "createInvoice", summary = "新增发票（F04，G1）", description = "totalAmount 服务端重算；issuedDate 晚于今天 422 INV_002；成功 201 返回完整资源（不脱敏）")
@@ -82,6 +88,57 @@ public class InvoiceController {
         // 展示层 Page（避免直接序列化实体集合）
         Page<InvoiceView> view = new Page<>(items, result.getPageNumber(), result.getPageSize(), result.getTotalRow());
         return ApiResponse.ok(view);
+    }
+
+    @Operation(operationId = "patchInvoice", summary = "编辑发票（F05，M2）",
+            description = "部分字段合并；保留 createdAt、刷新 updatedAt；校验/totalAmount 重算同创建")
+    @org.springframework.web.bind.annotation.PatchMapping("/{id}")
+    public ApiResponse<InvoiceView> patch(@PathVariable String id,
+                                          @jakarta.validation.Valid @RequestBody CreateRequest req) {
+        return ApiResponse.ok(view(service.patch(principal(), id, new InvoiceService.CreateInput(
+                req.invoiceCode(), req.invoiceNumber(), req.issuedDate(), req.title(),
+                req.amount(), req.taxAmount(), req.category(), req.medium(), req.status(), req.remark())), true));
+    }
+
+    @Operation(operationId = "deleteInvoice", summary = "删除→回收站（F06，M2）",
+            description = "软删除（置 deletedAt），附件随行保留；再删 404 INV_001")
+    @org.springframework.web.bind.annotation.DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable String id) {
+        recycleService.softDelete(principal(), id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(operationId = "exportInvoices", summary = "CSV 导出（F10，G3）",
+            description = "query 同列表筛选；预检 >5000 → 422 EXP_001；200 text/csv 流式 + BOM；内容不脱敏；文件名 票夹通导出_时间戳.csv")
+    @GetMapping("/export")
+    public ResponseEntity<org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody> export(
+            @RequestParam(required = false) String month,
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) String amountMin,
+            @RequestParam(required = false) String amountMax,
+            @RequestParam(required = false) List<String> category,
+            @RequestParam(required = false) List<String> medium,
+            @RequestParam(required = false) List<String> status) {
+        InvoiceService.ListQuery q = new InvoiceService.ListQuery(month, title, amountMin, amountMax,
+                category, medium, status, 1, 20, true);
+        // 预检+取数在响应头之前（>5000 此处抛 EXP_001 → 422，不产生半截文件）
+        java.util.List<Invoice> rows = exportService.filteredForExport(principal(), q);
+        String encoded = java.net.URLEncoder.encode(exportService.filename(),
+                java.nio.charset.StandardCharsets.UTF_8).replace("+", "%20");
+        var body = (org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody)
+                out -> {
+                    try {
+                        exportService.writeCsv(out, rows);
+                    } catch (java.io.IOException ioe) {
+                        throw ioe;
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                };
+        return ResponseEntity.ok()
+                .header("Content-Type", "text/csv; charset=utf-8")
+                .header("Content-Disposition", "attachment; filename*=UTF-8''" + encoded)
+                .body(body);
     }
 
     @Operation(operationId = "getInvoiceDetail", summary = "发票详情（F07）", description = "完整字段不脱敏（详情页口径）；非本人/不存在 404 INV_001")

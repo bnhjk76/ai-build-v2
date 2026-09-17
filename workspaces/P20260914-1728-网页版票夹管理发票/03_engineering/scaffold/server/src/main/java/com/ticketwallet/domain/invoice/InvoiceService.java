@@ -15,7 +15,6 @@ import java.time.OffsetDateTime;
 import java.time.YearMonth;
 import java.time.ZoneId;
 import java.util.List;
-import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
@@ -42,6 +41,10 @@ public class InvoiceService {
     public record ListQuery(String month, String title, String amountMin, String amountMax,
                             List<String> category, List<String> medium, List<String> status,
                             int page, int pageSize, boolean showSensitive) {}
+
+    public record CreateInput(String invoiceCode, String invoiceNumber, String issuedDate, String title,
+                              String amount, String taxAmount, InvoiceCategory category, InvoiceMedium medium,
+                              InvoiceStatus status, String remark) {}
 
     @Transactional
     public Invoice create(AppPrincipal principal, CreateInput in) {
@@ -71,7 +74,7 @@ public class InvoiceService {
             issuedDate = LocalDate.parse(in.issuedDate());
         } catch (Exception e) {
             throw field("issuedDate", "开票日期格式应为 YYYY-MM-DD");
-            }
+        }
         if (issuedDate.isAfter(LocalDate.now(BIZ_ZONE))) {
             throw field("issuedDate", "开票日期不能晚于今天");
         }
@@ -97,27 +100,28 @@ public class InvoiceService {
         return inv;
     }
 
-    public record CreateInput(String invoiceCode, String invoiceNumber, String issuedDate, String title,
-                              String amount, String taxAmount, InvoiceCategory category, InvoiceMedium medium,
-                              InvoiceStatus status, String remark) {}
-
-    /** 五维筛选 + 分页 + 掩码出口（api-design §4.2 GET /invoices）。 */
+    /** 列表分页（F07/F08）：五维筛选 + 开票日期倒序。 */
     public Page<Invoice> page(AppPrincipal principal, ListQuery q) {
+        QueryWrapper qw = buildFilterWrapper(principal, q);
+        qw.orderBy("issued_date", false).orderBy("created_at", false);
+        return mapper.paginate(q.page(), q.pageSize(), qw);
+    }
+
+    /** 五维筛选谓词组装（列表与导出共用，api-design §4.2：export query 同列表参数）。 */
+    public QueryWrapper buildFilterWrapper(AppPrincipal principal, ListQuery q) {
         QueryWrapper qw = QueryWrapper.create()
                 .where("user_id = ?", principal.userId())
                 .and("deleted_at IS NULL");
 
         if (q.month() != null) {
             if (!MONTH.matcher(q.month()).matches()) {
-                throw new ApiException(ErrorCode.INV_003, ErrorCode.INV_003.message(),
-                        List.of(new ApiException.FieldError("month", "月份格式应为 YYYY-MM")));
+                throw inv003("month", "月份格式应为 YYYY-MM");
             }
             YearMonth ym;
             try {
                 ym = YearMonth.parse(q.month());
             } catch (Exception e) {
-                throw new ApiException(ErrorCode.INV_003, ErrorCode.INV_003.message(),
-                        List.of(new ApiException.FieldError("month", "月份无效")));
+                throw inv003("month", "月份无效");
             }
             qw.and("issued_date >= ?", ym.atDay(1))
               .and("issued_date < ?", ym.plusMonths(1).atDay(1));
@@ -131,12 +135,10 @@ public class InvoiceService {
         if (q.amountMax() != null && !q.amountMax().isBlank()) max = parseMoney(q.amountMax());
         if ((q.amountMin() != null && !q.amountMin().isBlank() && min == null)
                 || (q.amountMax() != null && !q.amountMax().isBlank() && max == null)) {
-            throw new ApiException(ErrorCode.INV_003, ErrorCode.INV_003.message(),
-                    List.of(new ApiException.FieldError("amountMin/amountMax", "金额需为两位小数数字")));
+            throw inv003("amountMin/amountMax", "金额需为两位小数数字");
         }
         if (min != null && max != null && min.compareTo(max) > 0) {
-            throw new ApiException(ErrorCode.INV_003, ErrorCode.INV_003.message(),
-                    List.of(new ApiException.FieldError("amountMin", "最小金额不能大于最大金额")));
+            throw inv003("amountMin", "最小金额不能大于最大金额");
         }
         if (min != null) qw.and("total_amount >= ?", min);
         if (max != null) qw.and("total_amount <= ?", max);
@@ -144,9 +146,7 @@ public class InvoiceService {
         qw = appendIn(qw, "category", q.category());
         qw = appendIn(qw, "medium", q.medium());
         qw = appendIn(qw, "status", q.status());
-
-        qw.orderBy("issued_date", false).orderBy("created_at", false);
-        return mapper.paginate(q.page(), q.pageSize(), qw);
+        return qw;
     }
 
     /** 掩码（R8：默认 ****5678，show_sensitive=1 全号）。 */
@@ -166,10 +166,53 @@ public class InvoiceService {
         return inv;
     }
 
+    /** 编辑（F05，M2）：部分字段合并，保留 createdAt、刷新 updatedAt，校验/重算同创建。 */
+    @Transactional
+    public Invoice patch(AppPrincipal principal, String id, CreateInput patch) {
+        Invoice inv = loadOwned(principal, id);
+        if (patch.invoiceNumber() != null) {
+            if (!NUMBER.matcher(patch.invoiceNumber()).matches()) {
+                throw field("invoiceNumber", "发票号码需为 8–20 位数字");
+            }
+            inv.setInvoiceNumber(patch.invoiceNumber());
+        }
+        if (patch.invoiceCode() != null) inv.setInvoiceCode(blankToNull(patch.invoiceCode()));
+        if (patch.issuedDate() != null) {
+            LocalDate d;
+            try { d = LocalDate.parse(patch.issuedDate()); }
+            catch (Exception e) { throw field("issuedDate", "开票日期格式应为 YYYY-MM-DD"); }
+            if (d.isAfter(LocalDate.now(BIZ_ZONE))) throw field("issuedDate", "开票日期不能晚于今天");
+            inv.setIssuedDate(d);
+        }
+        if (patch.title() != null) {
+            if (patch.title().isBlank() || patch.title().length() > 100) {
+                throw field("title", "抬头需为 1–100 个字符");
+            }
+            inv.setTitle(patch.title().trim());
+        }
+        if (patch.remark() != null) inv.setRemark(blankToNull(patch.remark()));
+        if (patch.category() != null) inv.setCategory(patch.category());
+        if (patch.medium() != null) inv.setMedium(patch.medium());
+        if (patch.status() != null) inv.setStatus(patch.status());
+        if (patch.amount() != null || patch.taxAmount() != null) {
+            BigDecimal amount = patch.amount() != null ? parseMoney(patch.amount()) : inv.getAmount();
+            BigDecimal tax = patch.taxAmount() != null ? parseMoney(patch.taxAmount()) : inv.getTaxAmount();
+            if (amount == null || amount.signum() <= 0) throw field("amount", "金额必须大于 0");
+            if (tax == null || tax.signum() < 0) throw field("taxAmount", "税额不能为负数");
+            inv.setAmount(amount);
+            inv.setTaxAmount(tax);
+            inv.setTotalAmount(amount.add(tax));   // 服务端重算
+        }
+        inv.setUpdatedAt(OffsetDateTime.now());
+        mapper.update(inv);
+        return inv;
+    }
+
     private QueryWrapper appendIn(QueryWrapper qw, String column, List<String> values) {
         if (values == null || values.isEmpty()) return qw;
         List<String> upper = values.stream().map(String::toUpperCase).toList();
-        qw.and(String.format("%s IN (%s)", column, String.join(",", upper.stream().map(v -> "'" + v.replace("'", "''") + "'").toList())));
+        qw.and(String.format("%s IN (%s)", column,
+                String.join(",", upper.stream().map(v -> "'" + v.replace("'", "''") + "'").toList())));
         return qw;
     }
 
@@ -184,6 +227,11 @@ public class InvoiceService {
 
     private ApiException field(String field, String message) {
         return new ApiException(ErrorCode.INV_002, ErrorCode.INV_002.message(),
+                List.of(new ApiException.FieldError(field, message)));
+    }
+
+    private ApiException inv003(String field, String message) {
+        return new ApiException(ErrorCode.INV_003, ErrorCode.INV_003.message(),
                 List.of(new ApiException.FieldError(field, message)));
     }
 }

@@ -1,6 +1,14 @@
 {
   "components": {
     "schemas": {
+      "ApiResponseAttachmentView": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/AttachmentView"
+          }
+        },
+        "type": "object"
+      },
       "ApiResponseAuthResponse": {
         "properties": {
           "data": {
@@ -13,6 +21,17 @@
         "properties": {
           "data": {
             "$ref": "#/components/schemas/InvoiceView"
+          }
+        },
+        "type": "object"
+      },
+      "ApiResponseListAttachmentView": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/AttachmentView"
+            },
+            "type": "array"
           }
         },
         "type": "object"
@@ -40,6 +59,46 @@
         "properties": {
           "data": {
             "$ref": "#/components/schemas/PageInvoiceView"
+          }
+        },
+        "type": "object"
+      },
+      "ApiResponsePageRecycleItemView": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/PageRecycleItemView"
+          }
+        },
+        "type": "object"
+      },
+      "ApiResponseSummary": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/Summary"
+          }
+        },
+        "type": "object"
+      },
+      "AttachmentView": {
+        "properties": {
+          "createdAt": {
+            "type": "string"
+          },
+          "filename": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "invoiceId": {
+            "type": "string"
+          },
+          "mimeType": {
+            "type": "string"
+          },
+          "size": {
+            "format": "int32",
+            "type": "integer"
           }
         },
         "type": "object"
@@ -131,6 +190,24 @@
           "taxAmount",
           "title"
         ],
+        "type": "object"
+      },
+      "Distribution": {
+        "properties": {
+          "amount": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "count": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "medium": {
+            "type": "string"
+          }
+        },
         "type": "object"
       },
       "InvoiceView": {
@@ -228,6 +305,94 @@
           }
         },
         "type": "object"
+      },
+      "PageRecycleItemView": {
+        "properties": {
+          "optimizeCountQuery": {
+            "type": "boolean",
+            "writeOnly": true
+          },
+          "pageNumber": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "pageSize": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "records": {
+            "items": {
+              "$ref": "#/components/schemas/RecycleItemView"
+            },
+            "type": "array"
+          },
+          "totalPage": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "totalRow": {
+            "format": "int64",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "PeriodStat": {
+        "properties": {
+          "reversedCount": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "totalCount": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "validAmount": {
+            "type": "string"
+          },
+          "validCount": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "voidedCount": {
+            "format": "int64",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "RecycleItemView": {
+        "properties": {
+          "daysLeft": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "deletedAt": {
+            "type": "string"
+          },
+          "invoice": {
+            "$ref": "#/components/schemas/InvoiceView"
+          }
+        },
+        "type": "object"
+      },
+      "StreamingResponseBody": {},
+      "Summary": {
+        "properties": {
+          "distribution": {
+            "items": {
+              "$ref": "#/components/schemas/Distribution"
+            },
+            "type": "array"
+          },
+          "month": {
+            "$ref": "#/components/schemas/PeriodStat"
+          },
+          "year": {
+            "$ref": "#/components/schemas/PeriodStat"
+          }
+        },
+        "type": "object"
       }
     }
   },
@@ -237,6 +402,62 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/v1/attachments/{id}": {
+      "delete": {
+        "operationId": "deleteAttachment",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "summary": "删除单个附件（R7：不影响其他）",
+        "tags": [
+          "attachments"
+        ]
+      }
+    },
+    "/api/v1/attachments/{id}/file": {
+      "get": {
+        "operationId": "downloadAttachment",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "format": "binary",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "下载/预览（属主谓词）",
+        "tags": [
+          "attachments"
+        ]
+      }
+    },
     "/api/v1/auth/login": {
       "post": {
         "description": "凭据错误统一 401 AUTH_001；连续 5 次失败后锁定 423 AUTH_002（details.retryAfterMinutes）",
@@ -507,7 +728,119 @@
         ]
       }
     },
+    "/api/v1/invoices/export": {
+      "get": {
+        "description": "query 同列表筛选；预检 >5000 → 422 EXP_001；200 text/csv 流式 + BOM；内容不脱敏；文件名 票夹通导出_时间戳.csv",
+        "operationId": "exportInvoices",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "month",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "title",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "amountMin",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "amountMax",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "category",
+            "required": false,
+            "schema": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "medium",
+            "required": false,
+            "schema": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/StreamingResponseBody"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "CSV 导出（F10，G3）",
+        "tags": [
+          "invoices"
+        ]
+      }
+    },
     "/api/v1/invoices/{id}": {
+      "delete": {
+        "description": "软删除（置 deletedAt），附件随行保留；再删 404 INV_001",
+        "operationId": "deleteInvoice",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "summary": "删除→回收站（F06，M2）",
+        "tags": [
+          "invoices"
+        ]
+      },
       "get": {
         "description": "完整字段不脱敏（详情页口径）；非本人/不存在 404 INV_001",
         "operationId": "getInvoiceDetail",
@@ -537,6 +870,238 @@
         "tags": [
           "invoices"
         ]
+      },
+      "patch": {
+        "description": "部分字段合并；保留 createdAt、刷新 updatedAt；校验/totalAmount 重算同创建",
+        "operationId": "patchInvoice",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseInvoiceView"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "编辑发票（F05，M2）",
+        "tags": [
+          "invoices"
+        ]
+      }
+    },
+    "/api/v1/invoices/{id}/attachments": {
+      "get": {
+        "operationId": "listAttachments",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseListAttachmentView"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "附件列表",
+        "tags": [
+          "attachments"
+        ]
+      },
+      "post": {
+        "description": "三校验：>10MB→ATT_001；已挂3个→ATT_002；格式/魔数不符→ATT_003",
+        "operationId": "uploadAttachment",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "file": {
+                    "format": "binary",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "file"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAttachmentView"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "上传附件（F11）",
+        "tags": [
+          "attachments"
+        ]
+      }
+    },
+    "/api/v1/recycle/items": {
+      "get": {
+        "operationId": "listRecycle",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "format": "int32",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "format": "int32",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponsePageRecycleItemView"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "回收站列表（daysLeft 服务端计算）",
+        "tags": [
+          "recycle"
+        ]
+      }
+    },
+    "/api/v1/recycle/items/{id}": {
+      "delete": {
+        "operationId": "purgeRecycleItem",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "summary": "彻底删除（级联附件+文件，不可恢复）",
+        "tags": [
+          "recycle"
+        ]
+      }
+    },
+    "/api/v1/recycle/items/{id}/restore": {
+      "post": {
+        "operationId": "restoreRecycleItem",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "summary": "恢复（置空 deletedAt）",
+        "tags": [
+          "recycle"
+        ]
+      }
+    },
+    "/api/v1/stats/summary": {
+      "get": {
+        "description": "validAmount=Σ正常−Σ红冲（可为负）；作废只计张数；空数据全 0",
+        "operationId": "getStatsSummary",
+        "responses": {
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseSummary"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "月/年卡片 + 票种×介质分布",
+        "tags": [
+          "stats"
+        ]
       }
     }
   },
@@ -548,12 +1113,24 @@
   ],
   "tags": [
     {
+      "description": "汇总统计（口径 A3 单点）",
+      "name": "stats"
+    },
+    {
       "description": "发票：录入/列表五维筛选/详情",
       "name": "invoices"
     },
     {
+      "description": "回收站：列表/恢复/彻底删除",
+      "name": "recycle"
+    },
+    {
       "description": "认证：注册/登录/登出/当前会话",
       "name": "auth"
+    },
+    {
+      "description": "附件：上传/列表/下载/删除",
+      "name": "attachments"
     }
   ]
 }

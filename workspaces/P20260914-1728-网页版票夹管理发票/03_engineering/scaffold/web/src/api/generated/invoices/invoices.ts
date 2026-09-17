@@ -27,7 +27,9 @@ import type {
   ApiResponseInvoiceView,
   ApiResponsePageInvoiceView,
   CreateRequest,
-  ListInvoicesParams
+  ExportInvoicesParams,
+  ListInvoicesParams,
+  StreamingResponseBody
 } from '../model';
 
 import { customClient } from '../../client';
@@ -280,6 +282,220 @@ export function useCreateInvoice<TData = Awaited<ReturnType<typeof createInvoice
 
 
 
+export type exportInvoicesResponse200 = {
+  data: StreamingResponseBody
+  status: 200
+}
+
+export type exportInvoicesResponseSuccess = (exportInvoicesResponse200) & {
+  headers: Headers;
+};
+;
+
+export type exportInvoicesResponse = (exportInvoicesResponseSuccess)
+
+export const getExportInvoicesUrl = (params?: ExportInvoicesParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    const explodeParameters = ["category","medium","status"];
+
+    if (Array.isArray(value) && explodeParameters.includes(key)) {
+      value.forEach((v) => {
+        normalizedParams.append(key, v === null ? 'null' : String(v));
+      });
+      return;
+    }
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/invoices/export?${stringifiedParams}` : `/api/v1/invoices/export`
+}
+
+/**
+ * query 同列表筛选；预检 >5000 → 422 EXP_001；200 text/csv 流式 + BOM；内容不脱敏；文件名 票夹通导出_时间戳.csv
+ * @summary CSV 导出（F10，G3）
+ */
+export const exportInvoices = async (params?: ExportInvoicesParams, options?: Parameters<typeof customClient>[1]): Promise<exportInvoicesResponse> => {
+
+  return customClient<exportInvoicesResponse>(getExportInvoicesUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getExportInvoicesMutationKey = () => ['exportInvoices'] as const;
+
+export const getExportInvoicesMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof exportInvoices>>, TError,ExportInvoicesMutationVariables, TContext>, request?: SecondParameter<typeof customClient>}
+): UseMutationOptions<Awaited<ReturnType<typeof exportInvoices>>, TError,ExportInvoicesMutationVariables, TContext> => {
+
+const mutationKey = getExportInvoicesMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof exportInvoices>>, ExportInvoicesMutationVariables> = (props) => {
+          const {params} = props ?? {};
+
+          return  exportInvoices(params,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ExportInvoicesMutationResult = NonNullable<Awaited<ReturnType<typeof exportInvoices>>>
+
+    export type ExportInvoicesMutationError = unknown
+    export type ExportInvoicesMutationVariables = {params?: ExportInvoicesParams}
+
+    /**
+ * @summary CSV 导出（F10，G3）
+ */
+export const useExportInvoices = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof exportInvoices>>, TError,ExportInvoicesMutationVariables, TContext>, request?: SecondParameter<typeof customClient>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof exportInvoices>>,
+        TError,
+        ExportInvoicesMutationVariables,
+        TContext
+      > => {
+      return useMutation(getExportInvoicesMutationOptions(options), queryClient);
+    }
+    export type deleteInvoiceResponse200 = {
+  data: void
+  status: 200
+}
+
+export type deleteInvoiceResponseSuccess = (deleteInvoiceResponse200) & {
+  headers: Headers;
+};
+;
+
+export type deleteInvoiceResponse = (deleteInvoiceResponseSuccess)
+
+export const getDeleteInvoiceUrl = (id: string,) => {
+
+
+
+
+  return `/api/v1/invoices/${id}`
+}
+
+/**
+ * 软删除（置 deletedAt），附件随行保留；再删 404 INV_001
+ * @summary 删除→回收站（F06，M2）
+ */
+export const deleteInvoice = async (id: string, options?: Parameters<typeof customClient>[1]): Promise<deleteInvoiceResponse> => {
+
+  return customClient<deleteInvoiceResponse>(getDeleteInvoiceUrl(id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteInvoiceQueryKey = (id: string,) => {
+    return [
+    'DELETE', `/api/v1/invoices/${id}`
+    ] as const;
+    }
+
+
+export const getDeleteInvoiceQueryOptions = <TData = Awaited<ReturnType<typeof deleteInvoice>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof deleteInvoice>>, TError, TData>>, request?: SecondParameter<typeof customClient>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getDeleteInvoiceQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof deleteInvoice>>> = ({ signal }) => deleteInvoice(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof deleteInvoice>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type DeleteInvoiceQueryResult = NonNullable<Awaited<ReturnType<typeof deleteInvoice>>>
+export type DeleteInvoiceQueryError = unknown
+
+
+export function useDeleteInvoice<TData = Awaited<ReturnType<typeof deleteInvoice>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof deleteInvoice>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof deleteInvoice>>,
+          TError,
+          Awaited<ReturnType<typeof deleteInvoice>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customClient>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useDeleteInvoice<TData = Awaited<ReturnType<typeof deleteInvoice>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof deleteInvoice>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof deleteInvoice>>,
+          TError,
+          Awaited<ReturnType<typeof deleteInvoice>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customClient>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useDeleteInvoice<TData = Awaited<ReturnType<typeof deleteInvoice>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof deleteInvoice>>, TError, TData>>, request?: SecondParameter<typeof customClient>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary 删除→回收站（F06，M2）
+ */
+
+export function useDeleteInvoice<TData = Awaited<ReturnType<typeof deleteInvoice>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof deleteInvoice>>, TError, TData>>, request?: SecondParameter<typeof customClient>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getDeleteInvoiceQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
 export type getInvoiceDetailResponse200 = {
   data: ApiResponseInvoiceView
   status: 200
@@ -366,3 +582,137 @@ export const useGetInvoiceDetail = <TError = unknown,
       > => {
       return useMutation(getGetInvoiceDetailMutationOptions(options), queryClient);
     }
+    export type patchInvoiceResponse200 = {
+  data: ApiResponseInvoiceView
+  status: 200
+}
+
+export type patchInvoiceResponseSuccess = (patchInvoiceResponse200) & {
+  headers: Headers;
+};
+;
+
+export type patchInvoiceResponse = (patchInvoiceResponseSuccess)
+
+export const getPatchInvoiceUrl = (id: string,) => {
+
+
+
+
+  return `/api/v1/invoices/${id}`
+}
+
+/**
+ * 部分字段合并；保留 createdAt、刷新 updatedAt；校验/totalAmount 重算同创建
+ * @summary 编辑发票（F05，M2）
+ */
+export const patchInvoice = async (id: string,
+    createRequest: CreateRequest, options?: Parameters<typeof customClient>[1]): Promise<patchInvoiceResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customClient<patchInvoiceResponse>(getPatchInvoiceUrl(id),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(createRequest)
+  }
+);}
+
+
+
+
+
+export const getPatchInvoiceQueryKey = (id: string,
+    createRequest?: CreateRequest,) => {
+    return [
+    'PATCH', `/api/v1/invoices/${id}`, createRequest
+    ] as const;
+    }
+
+
+export const getPatchInvoiceQueryOptions = <TData = Awaited<ReturnType<typeof patchInvoice>>, TError = unknown>(id: string,
+    createRequest: CreateRequest, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof patchInvoice>>, TError, TData>>, request?: SecondParameter<typeof customClient>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getPatchInvoiceQueryKey(id,createRequest);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof patchInvoice>>> = ({ signal }) => patchInvoice(id,createRequest, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof patchInvoice>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type PatchInvoiceQueryResult = NonNullable<Awaited<ReturnType<typeof patchInvoice>>>
+export type PatchInvoiceQueryError = unknown
+
+
+export function usePatchInvoice<TData = Awaited<ReturnType<typeof patchInvoice>>, TError = unknown>(
+ id: string,
+    createRequest: CreateRequest, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof patchInvoice>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof patchInvoice>>,
+          TError,
+          Awaited<ReturnType<typeof patchInvoice>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customClient>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function usePatchInvoice<TData = Awaited<ReturnType<typeof patchInvoice>>, TError = unknown>(
+ id: string,
+    createRequest: CreateRequest, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof patchInvoice>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof patchInvoice>>,
+          TError,
+          Awaited<ReturnType<typeof patchInvoice>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customClient>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function usePatchInvoice<TData = Awaited<ReturnType<typeof patchInvoice>>, TError = unknown>(
+ id: string,
+    createRequest: CreateRequest, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof patchInvoice>>, TError, TData>>, request?: SecondParameter<typeof customClient>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary 编辑发票（F05，M2）
+ */
+
+export function usePatchInvoice<TData = Awaited<ReturnType<typeof patchInvoice>>, TError = unknown>(
+ id: string,
+    createRequest: CreateRequest, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof patchInvoice>>, TError, TData>>, request?: SecondParameter<typeof customClient>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getPatchInvoiceQueryOptions(id,createRequest,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
