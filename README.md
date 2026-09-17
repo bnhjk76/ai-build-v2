@@ -2,6 +2,22 @@
 
 > 一个仓库，三样东西：**多智能体协作工作流**、**一个从需求到上线全流程真实交付的全栈项目**、**一套面向入门者的实战教程**。
 
+## Git 访问
+
+**仓库地址**：https://github.com/bnhjk76/ai-build-v2
+
+```bash
+# SSH（推荐，需先在 GitHub 配置公钥）
+git clone git@github.com:bnhjk76/ai-build-v2.git
+
+# 或 HTTPS
+git clone https://github.com/bnhjk76/ai-build-v2.git
+```
+
+- 分支：`main`（唯一长期分支，trunk-based）
+- 标签：`v0.1.0-P20260914-1728-网页版票夹管理发票`（M0 文档里程碑快照）
+- 推送免密：本机已配置 ed25519 SSH 密钥（`~/.ssh/id_ed25519`，公钥已登记 GitHub 账号）
+
 ## 这个仓库是什么
 
 用户提出一句话需求（「我想做一个网页版票夹管理」），主 Agent 按 [AGENTS.md](AGENTS.md) 协议调度 6 个职能子 Agent（产品/设计/技术/运维/客服/财务），经过 8 个阶段产出 31 份文档与可运行代码，全程质量门禁 + git 快照 + 决策记录，**零兜底零中断**完成 M1/M2 双里程碑冻结。
