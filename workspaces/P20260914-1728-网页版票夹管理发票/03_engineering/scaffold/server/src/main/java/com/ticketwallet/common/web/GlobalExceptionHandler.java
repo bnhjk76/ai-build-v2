@@ -51,6 +51,14 @@ public class GlobalExceptionHandler {
                 .body(new ErrorEnvelope(new ErrorBody(code.name(), code.message(), List.of())));
     }
 
+    /** 上传体积超限（multipart 层拦截，未到业务闸）→ ATT_001（api-design §4.3）。 */
+    @ExceptionHandler(org.springframework.web.multipart.MaxUploadSizeExceededException.class)
+    public ResponseEntity<ErrorEnvelope> uploadTooLarge(Exception e) {
+        ErrorCode code = ErrorCode.ATT_001;
+        return ResponseEntity.status(code.httpStatus())
+                .body(new ErrorEnvelope(new ErrorBody(code.name(), code.message(), List.of())));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorEnvelope> unexpected(Exception e) {
         log.error("SYS_001 requestId={}", org.slf4j.MDC.get("requestId"), e);

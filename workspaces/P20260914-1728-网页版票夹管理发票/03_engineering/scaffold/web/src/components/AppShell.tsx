@@ -10,7 +10,7 @@ export function AppShell() {
   const [maskedAccount, setMaskedAccount] = useState('')
 
   useEffect(() => {
-    me().then((r) => setMaskedAccount((r as unknown as { data: { account: string } }).data.account)).catch(() => {})
+    me().then((r) => setMaskedAccount((r as unknown as { account?: string }).account ?? '')).catch(() => {})
   }, [])
 
   const navItem = 'px-3 py-1.5 rounded-[var(--radius-full)] text-[var(--text-sm)] transition-colors'

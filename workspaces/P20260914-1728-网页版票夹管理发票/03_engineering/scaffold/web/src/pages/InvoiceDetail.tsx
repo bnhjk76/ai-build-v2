@@ -3,7 +3,8 @@ import Decimal from 'decimal.js'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { getInvoiceDetail, deleteInvoice } from '../api/generated/invoices/invoices'
-import { listAttachments, uploadAttachment, deleteAttachment } from '../api/generated/attachments/attachments'
+import { listAttachments, deleteAttachment } from '../api/generated/attachments/attachments'
+import { uploadAttachmentMultipart } from '../api/attachments-multipart'
 import { unwrap } from '../api/helpers'
 import type { AttachmentView, InvoiceView } from '../api/generated/model'
 import { Card } from '../components/Card'
@@ -71,7 +72,7 @@ export default function InvoiceDetailPage() {
               const f = e.target.files?.[0]; if (!f) return
               setUploading(true)
               try {
-                await uploadAttachment(id, { file: f as File & { [k: string]: unknown } })
+                await uploadAttachmentMultipart(id, f)
                 toast('附件已上传')
                 qc.invalidateQueries({ queryKey: ['attachments', id] })
               } catch (err) {
