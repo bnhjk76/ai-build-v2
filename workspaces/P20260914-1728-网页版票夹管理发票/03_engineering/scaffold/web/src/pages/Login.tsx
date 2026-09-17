@@ -50,7 +50,7 @@ export default function LoginPage() {
           {serverError && (
             <p className="text-[var(--text-sm)] text-[var(--color-danger-600)]" role="alert">{serverError}</p>
           )}
-          <Button type="submit" loading={isSubmitting || retryAfter !== null} className="w-full">
+          <Button type="submit" loading={isSubmitting} disabled={retryAfter !== null} className="w-full">
             {retryAfter !== null ? `已锁定，剩余约 ${retryAfter} 分钟` : '登录'}
           </Button>
         </form>

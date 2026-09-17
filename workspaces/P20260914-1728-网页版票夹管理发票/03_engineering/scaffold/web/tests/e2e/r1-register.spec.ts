@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test'
 
 /** R1 注册（engineering-plan §4.2）：密码不合规不发请求、重复注册警示、注册即进入票夹 */
 test('R1 注册成功进入空票夹', async ({ page }) => {
-  const account = `e2e_${Date.now()}@test.dev`
+  const account = `e2e_${Date.now()}_${Math.random().toString(36).slice(2, 8)}@test.dev`
   await page.goto('/register')
   await page.getByPlaceholder('邮箱或手机号').fill(account)
   await page.getByPlaceholder('密码（8–72 位）').fill('Passw0rd!8')
@@ -25,7 +25,7 @@ test('R1 密码不合规不发请求（网络 stub 断言 0 请求）', async ({
 })
 
 test('R1 重复注册显示引导文案', async ({ page }) => {
-  const account = `e2e_${Date.now()}@test.dev`
+  const account = `e2e_${Date.now()}_${Math.random().toString(36).slice(2, 8)}@test.dev`
   await page.goto('/register')
   await page.getByPlaceholder('邮箱或手机号').fill(account)
   await page.getByPlaceholder('密码（8–72 位）').fill('Passw0rd!8')

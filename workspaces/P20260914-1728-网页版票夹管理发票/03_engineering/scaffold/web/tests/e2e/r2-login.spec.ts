@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test'
 
 /** R2 登录：错误统一文案、第 6 次锁定禁用按钮+剩余分钟、redirect 回跳 */
 test('R2 密码错误统一文案', async ({ page }) => {
-  const account = `e2e_${Date.now()}@test.dev`
+  const account = `e2e_${Date.now()}_${Math.random().toString(36).slice(2, 8)}@test.dev`
   await registerViaUi(page, account)
   await page.getByRole('button', { name: '退出' }).click()
   await expect(page).toHaveURL(/\/login/)
@@ -14,7 +14,7 @@ test('R2 密码错误统一文案', async ({ page }) => {
 })
 
 test('R2 连续 5 次失败后第 6 次锁定（禁用+剩余分钟）', async ({ page }) => {
-  const account = `e2e_${Date.now()}@test.dev`
+  const account = `e2e_${Date.now()}_${Math.random().toString(36).slice(2, 8)}@test.dev`
   await registerViaUi(page, account)
   await page.getByRole('button', { name: '退出' }).click()
   await expect(page).toHaveURL(/\/login/)
@@ -34,7 +34,7 @@ test('R2 连续 5 次失败后第 6 次锁定（禁用+剩余分钟）', async (
 })
 
 test('R2 登录成功回跳 redirect', async ({ page }) => {
-  const account = `e2e_${Date.now()}@test.dev`
+  const account = `e2e_${Date.now()}_${Math.random().toString(36).slice(2, 8)}@test.dev`
   await registerViaUi(page, account)
   await expect(page).toHaveURL(/\/invoices$/)
 

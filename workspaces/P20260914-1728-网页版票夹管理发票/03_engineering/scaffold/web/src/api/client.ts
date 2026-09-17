@@ -19,7 +19,8 @@ export const customClient = async <T>(
   url: string,
   config: { method?: string; params?: Record<string, unknown>; data?: unknown; headers?: Record<string, string>; body?: unknown; signal?: AbortSignal },
 ): Promise<T> => {
-  let fullUrl = `/api/v1${url}`
+  // 契约路径已含 /api/v1 前缀（springdoc 全路径），此处仅在外层缺口径时补齐（防双前缀）
+  let fullUrl = url.startsWith('/api/') ? url : `/api/v1${url}`
   if (config.params) {
     const qs = new URLSearchParams()
     for (const [k, v] of Object.entries(config.params)) {
