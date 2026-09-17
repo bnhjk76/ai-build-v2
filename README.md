@@ -41,6 +41,10 @@ tutorial/                    入门教程《从零到上线》（9 章 + 25 坑�
 - **前端**：React 19 · TypeScript(strict) · Vite · Tailwind v4 · TanStack Query · react-hook-form + zod
 - **契约**：springdoc → OpenAPI 工件 → orval 生成客户端 → CI 三道防线防漂移
 - **部署**：Docker Compose 三容器 · Caddy 自动 HTTPS · 每日备份
+- **AI 协作（本项目的"隐形队员"）**：
+  - 智能体框架：ZCode（主 Agent 编排 + 6 个职能 subagent 派发）
+  - 模型版本：**GLM-5.3**（`bigmodel-individual-coding-plan`，智谱 BigModel）——贯穿规划、6 大职能角色、开发与测试全程
+  - 人类角色：需求提出 · D1–D7 决策拍板 · 环境准备 · 最终验收
 
 ## 快速开始
 
