@@ -16,6 +16,18 @@
 
 **前置要求**：会开关电脑、能照着命令行敲命令。教程假设你零基础，每个概念第一次出现都会用一句话解释。
 
+## 配套代码仓库
+
+本教程所有案例都来自这个真实仓库，边读边对照：
+
+**https://github.com/bnhjk76/ai-build-v2**
+
+```bash
+git clone git@github.com:bnhjk76/ai-build-v2.git   # 或 https://github.com/bnhjk76/ai-build-v2.git
+```
+
+克隆后，教程中提到的 `WS/` 即仓库里的 `workspaces/P20260914-1728-网页版票夹管理发票/` 目录。
+
 ## 怎么使用本教程
 
 1. **按序阅读**（第 1→8 章，故事线完整）；
