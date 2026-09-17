@@ -9,6 +9,14 @@
         },
         "type": "object"
       },
+      "ApiResponseInvoiceView": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/InvoiceView"
+          }
+        },
+        "type": "object"
+      },
       "ApiResponseMapStringObject": {
         "properties": {
           "data": {
@@ -40,6 +48,14 @@
       "ApiResponseObject": {
         "properties": {
           "data": {}
+        },
+        "type": "object"
+      },
+      "ApiResponsePageInvoiceView": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/PageInvoiceView"
+          }
         },
         "type": "object"
       },
@@ -98,6 +114,57 @@
         },
         "type": "object"
       },
+      "InvoiceView": {
+        "properties": {
+          "amount": {
+            "type": "string"
+          },
+          "attachmentCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "category": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "invoiceCode": {
+            "type": "string"
+          },
+          "invoiceNumber": {
+            "type": "string"
+          },
+          "issuedDate": {
+            "type": "string"
+          },
+          "medium": {
+            "type": "string"
+          },
+          "remark": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "taxAmount": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "totalAmount": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "MeResponse": {
         "properties": {
           "account": {
@@ -108,6 +175,37 @@
           },
           "expiresAt": {
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "PageInvoiceView": {
+        "properties": {
+          "optimizeCountQuery": {
+            "type": "boolean",
+            "writeOnly": true
+          },
+          "pageNumber": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "pageSize": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "records": {
+            "items": {
+              "$ref": "#/components/schemas/InvoiceView"
+            },
+            "type": "array"
+          },
+          "totalPage": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "totalRow": {
+            "format": "int64",
+            "type": "integer"
           }
         },
         "type": "object"
@@ -264,6 +362,187 @@
         },
         "tags": [
           "health-controller"
+        ]
+      }
+    },
+    "/api/v1/invoices": {
+      "get": {
+        "description": "month/title(ILIKE)/amountMin-Max(作用 totalAmount)/category/medium/status 可多值逗号分隔；条件 AND、同维 OR；invoiceNumber 默认掩码，show_sensitive=1 全号",
+        "operationId": "list_1",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "month",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "title",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "amountMin",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "amountMax",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "category",
+            "required": false,
+            "schema": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "medium",
+            "required": false,
+            "schema": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "format": "int32",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "format": "int32",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "show_sensitive",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "format": "int32",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponsePageInvoiceView"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "列表+五维筛选+分页（F07/F08）",
+        "tags": [
+          "invoices"
+        ]
+      },
+      "post": {
+        "description": "totalAmount 服务端重算；issuedDate 晚于今天 422 INV_002；成功 201 返回完整资源（不脱敏）",
+        "operationId": "create_1",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseInvoiceView"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "新增发票（F04，G1）",
+        "tags": [
+          "invoices"
+        ]
+      }
+    },
+    "/api/v1/invoices/{id}": {
+      "get": {
+        "description": "完整字段不脱敏（详情页口径）；非本人/不存在 404 INV_001",
+        "operationId": "detail",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseInvoiceView"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "发票详情（F07）",
+        "tags": [
+          "invoices"
         ]
       }
     },
@@ -432,6 +711,10 @@
     }
   ],
   "tags": [
+    {
+      "description": "发票：录入/列表五维筛选/详情",
+      "name": "invoices"
+    },
     {
       "description": "认证：注册/登录/登出/当前会话",
       "name": "auth"
