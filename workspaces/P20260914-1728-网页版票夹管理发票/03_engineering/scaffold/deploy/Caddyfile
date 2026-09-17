@@ -1,0 +1,19 @@
+{$CADDY_DOMAIN} {
+	encode gzip
+
+	# 附件上传第一道闸（tech-stack §3.9：15MB；应用层 10MB 为第二道）
+	request_body {
+		max_size 15MB
+	}
+
+	# 生产屏蔽契约端点（api-design §7.6：防接口面信息泄露）
+	@apidocs path /v3/api-docs* /swagger-ui* /swagger-ui.html
+	respond @apidocs 404
+
+	# 前端静态产物（Vite build 产物注入）
+	root * /srv/web
+	@api path /api/*
+	reverse_proxy @api api:8080
+	try_files {path} /index.html
+	file_server
+}

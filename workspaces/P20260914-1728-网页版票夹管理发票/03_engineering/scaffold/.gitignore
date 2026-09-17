@@ -12,3 +12,7 @@ server/target/
 test-results/
 web/dist/
 web/node_modules/
+
+# 部署构建产物
+deploy/server-*.jar
+deploy/backups/
