@@ -6,6 +6,8 @@ import RegisterPage from '../pages/Register'
 import InvoicesPage from '../pages/Invoices'
 import InvoiceFormPage from '../pages/InvoiceForm'
 import InvoiceDetailPage from '../pages/InvoiceDetail'
+import StatsPage from '../pages/Stats'
+import RecyclePage from '../pages/Recycle'
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
@@ -18,6 +20,8 @@ export const router = createBrowserRouter([
       { path: 'invoices', element: <InvoicesPage /> },
       { path: 'invoices/new', element: <InvoiceFormPage /> },
       { path: 'invoices/:id', element: <InvoiceDetailPage /> },
+      { path: 'stats', element: <StatsPage /> },
+      { path: 'recycle', element: <RecyclePage /> },
     ],
   },
 ])

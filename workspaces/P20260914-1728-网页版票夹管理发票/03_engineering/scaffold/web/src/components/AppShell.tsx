@@ -22,8 +22,8 @@ export function AppShell() {
           <Link to="/invoices" className="font-semibold text-[var(--text-lg)]">票夹通</Link>
           <nav className="flex gap-1">
             <NavLink to="/invoices" className={({ isActive }) => `${navItem} ${isActive ? 'bg-[var(--color-primary-100)] text-[var(--color-primary-700)]' : 'text-[var(--color-ink-700)]'}`}>票夹</NavLink>
-            <span className={`${navItem} text-[var(--color-ink-300)]`} title="M2 上线">汇总</span>
-            <span className={`${navItem} text-[var(--color-ink-300)]`} title="M2 上线">回收站</span>
+            <NavLink to="/stats" className={({ isActive }) => `${navItem} ${isActive ? 'bg-[var(--color-primary-100)] text-[var(--color-primary-700)]' : 'text-[var(--color-ink-700)]'}`}>汇总</NavLink>
+            <NavLink to="/recycle" className={({ isActive }) => `${navItem} ${isActive ? 'bg-[var(--color-primary-100)] text-[var(--color-primary-700)]' : 'text-[var(--color-ink-700)]'}`}>回收站</NavLink>
           </nav>
           <div className="ml-auto flex items-center gap-3">
             <span className="text-[var(--text-xs)] text-[var(--color-ink-500)]">{maskedAccount}</span>

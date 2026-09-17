@@ -73,6 +73,7 @@ export default function InvoicesPage() {
               localStorage.setItem('pref_show_sensitive', next ? '1' : '0')
             }}
           >{showSensitive ? '🙈 隐藏全号' : '👁 显示全号'}</button>
+          <a href={`/api/v1/invoices/export?${params.toString()}`} className="h-10 px-3 flex items-center rounded-[var(--radius-md)] border border-[var(--color-line)] text-[var(--text-sm)]">⬇ 导出 CSV</a>
           <Link to="/invoices/new"><Button>＋ 新增发票</Button></Link>
         </div>
       </div>
