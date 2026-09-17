@@ -70,3 +70,10 @@
 | A5 | 回填 M1–M3 实际开发成本 | 开发完成后 | 后续会话 |
 | A6 | M1 W1 首日技术栈组合 spike（Boot4.1.1×JDK25×Flex1.11.8，48h 出结论；失败走 JDK 21 回退并需重新决策） | M1 W1 首日 | 后续开发会话 |
 | A7 | JVM 内存/镜像体积实测核验（RSS ≤550MB、镜像 <350MB） | M3 W6 | 后续开发会话 |
+
+### D7 引入 Lombok 简化实体层存取器 → **采纳（限实体层）**（2026-09-17）
+
+- **决策**：引入 Lombok（Boot parent 托管版本 1.18.48，compile-time only），**仅用于 MyBatis-Flex 实体**（@Getter/@Setter 替代手写存取器）；DTO 层维持 record（比 Lombok 更简，现状已是 record）。
+- **验证（2026-09-17 实测）**：Lombok 1.18.48 × JDK 25.0.4.1 × maven-compiler 3.15（显式 annotationProcessorPaths）编译通过，auth 集成测试 7/7 保持全绿。
+- **边界**：遵循 T3 依赖收敛——Lombok 不进运行时（optional + provided 语义）；后续如新增 mybatis-flex-processor APT，需并列登记 annotationProcessorPaths；重大 JDK 升级时 Lombok 兼容性列为首个回归项（其依赖编译器内部 API）。
+- **状态**：已决策 ✅ + 已执行 ✅

@@ -40,7 +40,7 @@
 | --- | --- | --- |
 | T1 | 单体优先 | 一个前端应用 + 一个后端应用 + 一个 PG 实例 + 本地附件卷，Compose 单机部署 |
 | T2 | **契约贯穿** | 前后端语言异构后，类型贯通改由 **OpenAPI 3 规范**承担：后端注解生成 → 契约工件入库 → 前端 orval 生成类型与客户端 → CI 三道防线检测漂移（§7） |
-| T3 | 少依赖、长支持 | Java 侧依赖收敛于 Spring 官方 starter + MyBatis-Flex + Flyway + springdoc + Bouncy Castle 五族；组件自建为主（7 个通用组件不引入组件库） |
+| T3 | 少依赖、长支持 | Java 侧依赖收敛于 Spring 官方 starter + MyBatis-Flex + Flyway + springdoc + Bouncy Castle 五族 + Lombok（D7：仅实体层 compile-time，1.18.48 × JDK 25 已实测）；组件自建为主（7 个通用组件不引入组件库） |
 | T4 | 可降级 | 每个关键组件给出降级路径（§9 与 engineering-plan §6）：argon2→bcrypt、QueryWrapper→注解 SQL、JDK 25→21 回退、本地盘→S3 抽象 |
 | T5 | 现金流友好 | 月成本 ≤¥50：2C2G 单机预算表见 §6.2，JVM 堆与镜像体积是硬预算项 |
 

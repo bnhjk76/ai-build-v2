@@ -14,69 +14,291 @@
       "G4 账号隔离、传输加密、脱敏展示",
       "G5 交付可部署 MVP 的完备文档与脚手架"
     ],
-    "phases": ["planner", "pm", "designer", "tech", "ops", "support", "finance"]
+    "phases": [
+      "planner",
+      "pm",
+      "designer",
+      "tech",
+      "ops",
+      "support",
+      "finance"
+    ]
   },
   "phases": [
-    {"role": "planner", "status": "done",
-     "summary": "章程完成：定位为面向个人与小商户的网页版开票记录票夹；范围聚焦手工录入+多维检索+汇总导出，OCR与税务接口列范围外；目标G1-G5可衡量；里程碑M0-M3，本流程负责M0文档与脚手架。",
-     "decisions": ["主场景定为开票方（销项）记录台账，不做进项管理", "MVP 手工录入，OCR 二期", "一期单用户私有，不做协作共享"],
-     "risks": ["发票数据敏感的合规疑虑→一期脱敏+加密+不做对外接口", "subagent 产出不合格→重派一次后按骨架兜底记 degraded"],
-     "docs": ["00_charter/charter.md"], "error": "", "ts": "2026-09-14T17:29:37+08:00"},
-    {"role": "pm", "status": "done",
-     "summary": "产品定义完成：PRD明确开票方视角与双画像；features输出F01-F15（MoSCoW+验收标准）；user-stories输出US01-US15与J1-J4旅程含异常路径；metrics定义北极星与30+埋点事件。质量门禁4/4通过。",
-     "decisions": ["发票类型按票种×介质双维度建模，筛选按章程字面四选", "发票代码选填兼容数电票，号码必填8-20位", "汇总口径：正常计有效金额、红冲负冲减、作废仅计张数", "附件定级Should（M2必达）", "脱敏底线：号码留末4位，详情与CSV导出不脱敏"],
-     "risks": ["忘记密码未入MVP，待确认Q1，或成客服高频问题", "北极星主口径与首月人均目标为假设需上线校准", "脱敏字段范围待designer回签"],
-     "docs": ["01_product/PRD.md", "01_product/features.md", "01_product/user-stories.md", "01_product/metrics.md"],
-     "error": "", "ts": "2026-09-14T17:36:32+08:00"},
-    {"role": "designer", "status": "done",
-     "summary": "设计阶段完成：Design Tokens全量（hex/px实值）、站点地图与双端导航、P01-P08页面五状态清单、R1-R10交互流程含异常兜底、W1-W8线框图。质量门禁5/5通过。",
-     "decisions": ["Q2回签：抬头不脱敏（识别检索主字段），维持号码留末4位+账号脱敏，详情与CSV不脱敏，给出全站脱敏矩阵", "状态色唯一映射：正常绿/作废灰/红冲红，颜色+文字双通道", "一级导航3项（票夹/汇总/回收站），新增发票顶栏主按钮+移动FAB", "空态双型：首录引导型vs筛选无果型", "筛选与页码入URL query", "两级删除文案区分：回收站30天可恢复vs彻底删除不可恢复"],
-     "risks": ["忘记密码Q1未决：登录页预留客服入口位，纳入M2需增R11", "移动加载更多vs桌面分页两种形态需tech确认同一分页API覆盖（风险低）", "高保真视觉稿不产出，品牌升级需二期"],
-     "docs": ["02_design/design-spec.md", "02_design/information-architecture.md", "02_design/pages.md", "02_design/interactions.md", "02_design/wireframes.md"],
-     "error": "", "ts": "2026-09-14T17:44:49+08:00"},
-    {"role": "tech", "status": "done",
-     "summary": "技术方案 v2.0（2026-09-15 技术栈变更重跑，D6 决策）：后端 Spring Boot 4.1.1 + MyBatis-Flex 1.11.8 + JDK 25 LTS（Maven 构建）；前端/PG16/Caddy 不变。八项既有架构决策逐条落位 Java 等价物；契约机制由 zod 三端共享重建为 OpenAPI 3 单一源（springdoc→orval，CI 三道防线）。scaffold 已按新目录树重新物化（30 目录）。门禁 5/5 通过。v1.0（NestJS）已入库知识库留档。",
-     "decisions": ["构建选 Maven 弃 Gradle：pom 声明式无逻辑分支，多 AI 会话接力收敛性最好", "monorepo 四区并列（server[Maven]/web[pnpm]/contracts/deploy），弃 Gradle 多模块，契约工件 openapi.json 为前后端唯一耦合点", "契约链：springdoc 生成→构建期导出 contracts/openapi.json→orval 生成前端类型+客户端，CI 三道防线防漂移", "会话 Spring Session JDBC（登出删 SPRING_SESSION 行）；Argon2PasswordEncoder（BCrypt strength12 降级+前缀共存渐进重哈希）", "所有权守卫弃 AOP 注解，改 loadOwned(id,userId) 谓词纪律+越权矩阵测试；越权一律 404", "迁移 Prisma→Flyway（SQL 直写，ER/部分索引/pg_trgm 1:1 落地）；新增 AUTH_006（CSRF 头缺失 403，第 16 码）"],
-     "risks": ["Boot4.1.1×JDK25×Flex1.11.8 组合未经生产验证→M1 W1 首日强制 spike 48h 出结论，降级序列 JDK 21", "契约漂移（多会话最高频风险）→CI 三道防线+生成物禁手改纪律", "镜像/内存超 ¥50/月预算→多阶段构建+分层 jar+SerialGC+768MB limit，目标镜像<350MB/RSS≤550MB，M3 W6 实测"],
-     "docs": ["03_engineering/tech-stack.md", "03_engineering/architecture.md", "03_engineering/repo-layout.md", "03_engineering/api-design.md", "03_engineering/engineering-plan.md"],
-     "error": "", "ts": "2026-09-15T13:50:32+08:00"},
-    {"role": "ops", "status": "done",
-     "summary": "运维体系完成：三环境划分与12步上线、tag驱动发布+30秒健康门禁自动回退、四黄金信号监控（P95<500ms/可用性≥99.5%）、RPO24h/RTO2h备份容灾+季度演练一票否决、10类故障Runbook。门禁5/5通过。",
-     "decisions": ["环境三分：dev/staging与生产同VPS独立compose project三重隔离，M3试运行7天=真实灰度", "发布：tag驱动+滚动重建（api<10s，PG与数据卷不动），窗口周四21:00东八区", "监控轻量化：拨测+pino日志+每日巡检三层，不部署Prometheus", "备份防误删：版本化桶+rsync不带--delete+孤儿对账；pg_dump AES-256加密口令离线", "恢复演练为M3上线一票否决项"],
-     "risks": ["staging与生产同机互抢资源→compose内存限额（staging≤512MB）", "单人值班总线风险→support电话升级+手册可照抄执行", "ACME续期失败→巡检14天前置告警，宁短停机不裸HTTP", "备份窗口内数据丢失（RPO24h）→回收站30天兜人为误删，备份兜机器级灾难"],
-     "docs": ["04_ops/deployment.md", "04_ops/cicd.md", "04_ops/monitoring.md", "04_ops/backup-dr.md", "04_ops/runbook.md"],
-     "error": "", "ts": "2026-09-14T17:59:51+08:00（v1.1 于 2026-09-15T14:04:03+08:00 技术栈变更对齐：api 容器 Java 化、CI 双 job、JVM 指标入巡检、Runbook 10→12 类；框架不推翻，门禁 5/5 通过）"},
-    {"role": "support", "status": "done",
-     "summary": "客服体系完成：FAQ八大主题58条Q/A+15错误码速查表（与api-design逐字对齐）；SOP接待/投诉/免费口径补偿工具箱；工单P0-P3四级（与ops告警显式映射）SLA到分钟；反馈闭环四渠道+五条回流去向。门禁4/4通过。",
-     "decisions": ["忘记密码按人工核验+tech重置P1预案承接（Q1未决期间），每次受理计入证据链催办Q1", "RPO/RTO与回收站边界为红线话术：备份仅兜整机灾难，禁止暗示可定点恢复单条", "一期免费：退款按无此场景+补偿走非现金工具箱，商业化政策留占位", "越权口径与系统404对齐：不确认他人账号/记录存在性"],
-     "risks": ["人工核验强度有限（MVP无短信验证码）→双人在线+原邮箱告警+留痕", "单人值班覆盖缺口→P0工单30分钟无响应电话升级", "客服邮箱与FAQ反馈入口为占位，上线前须替换", "MVP无客服后台，接触用户数据仅限最小截图范围"],
-     "docs": ["05_support/faq.md", "05_support/sop.md", "05_support/ticketing.md", "05_support/feedback-loop.md"],
-     "error": "", "ts": "2026-09-14T18:07:56+08:00"},
-    {"role": "finance", "status": "done",
-     "summary": "财务模型完成：Agent单次全流程成本¥0.31（典型口径，字节校准上限≈¥0.74）；收入一期免费、第7个月起商业化，12个月三场景¥252/¥1,919/¥16,430；LTV/CAC=3.5基准成立；盈亏平衡仅基础设施口径9付费用户。门禁4/4通过。",
-     "decisions": ["单次全流程成本基准¥0.31，M0一次性成本<¥1，满足成本可控", "单位经济基准成立LTV¥116/CAC¥33=3.5，悲观0.91不成立", "盈亏平衡：基础设施口径9付费；含人力（¥500/月假设）95付费", "商业化门禁：免费期实测付费意向≥2%且月流失≤5%再启动二期支付", "finance档位单价表未规定，按旗舰假设标注可调整（降轻量省23%）"],
-     "risks": ["收入全为推演，付费转化率±1pp使收入∓50%（最敏感变量）", "收入模型未计付费流失，可能高估10-20%", "M1-M3开发会话成本无给定数据，按¥6-37当量粗估待回填", "Agent单价与基础设施波动影响微小"],
-     "docs": ["06_finance/agent-cost-model.md", "06_finance/revenue-model.md", "06_finance/unit-economics.md", "06_finance/summary.md"],
-     "error": "", "ts": "2026-09-14T18:15:22+08:00"},
-    {"role": "compliance", "status": "done",
-     "summary": "D3合规评估完成（扩展阶段，新增项目级compliance agent）：18项法规义务映射、9项风险评估（高4/中5），产出评估报告+隐私政策草案+整改计划T1-T11。脱敏口径判定可维持；附件票面可能含银行账号构成敏感个人信息（扩张解释待核实）。",
-     "decisions": ["脱敏口径S2可维持：本人查看本人数据不构成对外提供，增加CSV导出妥善保管提示", "手工录入字段为一般个人信息；附件票面可能含金融账户构成敏感个人信息，触发单独同意+PIA", "产品是辅助台账非法定保管载体，用户5年存根联保管义务不免除（发票办法26条）", "账号注销确认MVP缺失，需M2落地（个保法15/47条）"],
-     "risks": ["R1高：数据库与附件卷落盘加密未明确（个保法51条三）→T2推荐LUKS", "R2高：无隐私政策与注册同意流程→T1/T3", "R3高：账号注销/删除通道缺失→T5", "R4高：附件敏感信息无单独同意与PIA→T6", "中风险：备份境外区域涉跨境/分类分级缺失/泄露通知预案缺失/等保定级待确认"],
-     "docs": ["07_compliance/legal-assessment.md", "07_compliance/privacy-policy-draft.md", "07_compliance/remediation-plan.md"],
-     "error": "", "ts": "2026-09-15T11:48:49+08:00"}
+    {
+      "role": "planner",
+      "status": "done",
+      "summary": "章程完成：定位为面向个人与小商户的网页版开票记录票夹；范围聚焦手工录入+多维检索+汇总导出，OCR与税务接口列范围外；目标G1-G5可衡量；里程碑M0-M3，本流程负责M0文档与脚手架。",
+      "decisions": [
+        "主场景定为开票方（销项）记录台账，不做进项管理",
+        "MVP 手工录入，OCR 二期",
+        "一期单用户私有，不做协作共享"
+      ],
+      "risks": [
+        "发票数据敏感的合规疑虑→一期脱敏+加密+不做对外接口",
+        "subagent 产出不合格→重派一次后按骨架兜底记 degraded"
+      ],
+      "docs": [
+        "00_charter/charter.md"
+      ],
+      "error": "",
+      "ts": "2026-09-14T17:29:37+08:00"
+    },
+    {
+      "role": "pm",
+      "status": "done",
+      "summary": "产品定义完成：PRD明确开票方视角与双画像；features输出F01-F15（MoSCoW+验收标准）；user-stories输出US01-US15与J1-J4旅程含异常路径；metrics定义北极星与30+埋点事件。质量门禁4/4通过。",
+      "decisions": [
+        "发票类型按票种×介质双维度建模，筛选按章程字面四选",
+        "发票代码选填兼容数电票，号码必填8-20位",
+        "汇总口径：正常计有效金额、红冲负冲减、作废仅计张数",
+        "附件定级Should（M2必达）",
+        "脱敏底线：号码留末4位，详情与CSV导出不脱敏"
+      ],
+      "risks": [
+        "忘记密码未入MVP，待确认Q1，或成客服高频问题",
+        "北极星主口径与首月人均目标为假设需上线校准",
+        "脱敏字段范围待designer回签"
+      ],
+      "docs": [
+        "01_product/PRD.md",
+        "01_product/features.md",
+        "01_product/user-stories.md",
+        "01_product/metrics.md"
+      ],
+      "error": "",
+      "ts": "2026-09-14T17:36:32+08:00"
+    },
+    {
+      "role": "designer",
+      "status": "done",
+      "summary": "设计阶段完成：Design Tokens全量（hex/px实值）、站点地图与双端导航、P01-P08页面五状态清单、R1-R10交互流程含异常兜底、W1-W8线框图。质量门禁5/5通过。",
+      "decisions": [
+        "Q2回签：抬头不脱敏（识别检索主字段），维持号码留末4位+账号脱敏，详情与CSV不脱敏，给出全站脱敏矩阵",
+        "状态色唯一映射：正常绿/作废灰/红冲红，颜色+文字双通道",
+        "一级导航3项（票夹/汇总/回收站），新增发票顶栏主按钮+移动FAB",
+        "空态双型：首录引导型vs筛选无果型",
+        "筛选与页码入URL query",
+        "两级删除文案区分：回收站30天可恢复vs彻底删除不可恢复"
+      ],
+      "risks": [
+        "忘记密码Q1未决：登录页预留客服入口位，纳入M2需增R11",
+        "移动加载更多vs桌面分页两种形态需tech确认同一分页API覆盖（风险低）",
+        "高保真视觉稿不产出，品牌升级需二期"
+      ],
+      "docs": [
+        "02_design/design-spec.md",
+        "02_design/information-architecture.md",
+        "02_design/pages.md",
+        "02_design/interactions.md",
+        "02_design/wireframes.md"
+      ],
+      "error": "",
+      "ts": "2026-09-14T17:44:49+08:00"
+    },
+    {
+      "role": "tech",
+      "status": "done",
+      "summary": "技术方案 v2.0（2026-09-15 技术栈变更重跑，D6 决策）：后端 Spring Boot 4.1.1 + MyBatis-Flex 1.11.8 + JDK 25 LTS（Maven 构建）；前端/PG16/Caddy 不变。八项既有架构决策逐条落位 Java 等价物；契约机制由 zod 三端共享重建为 OpenAPI 3 单一源（springdoc→orval，CI 三道防线）。scaffold 已按新目录树重新物化（30 目录）。门禁 5/5 通过。v1.0（NestJS）已入库知识库留档。",
+      "decisions": [
+        "构建选 Maven 弃 Gradle：pom 声明式无逻辑分支，多 AI 会话接力收敛性最好",
+        "monorepo 四区并列（server[Maven]/web[pnpm]/contracts/deploy），弃 Gradle 多模块，契约工件 openapi.json 为前后端唯一耦合点",
+        "契约链：springdoc 生成→构建期导出 contracts/openapi.json→orval 生成前端类型+客户端，CI 三道防线防漂移",
+        "会话 Spring Session JDBC（登出删 SPRING_SESSION 行）；Argon2PasswordEncoder（BCrypt strength12 降级+前缀共存渐进重哈希）",
+        "所有权守卫弃 AOP 注解，改 loadOwned(id,userId) 谓词纪律+越权矩阵测试；越权一律 404",
+        "迁移 Prisma→Flyway（SQL 直写，ER/部分索引/pg_trgm 1:1 落地）；新增 AUTH_006（CSRF 头缺失 403，第 16 码）"
+      ],
+      "risks": [
+        "Boot4.1.1×JDK25×Flex1.11.8 组合未经生产验证→M1 W1 首日强制 spike 48h 出结论，降级序列 JDK 21",
+        "契约漂移（多会话最高频风险）→CI 三道防线+生成物禁手改纪律",
+        "镜像/内存超 ¥50/月预算→多阶段构建+分层 jar+SerialGC+768MB limit，目标镜像<350MB/RSS≤550MB，M3 W6 实测"
+      ],
+      "docs": [
+        "03_engineering/tech-stack.md",
+        "03_engineering/architecture.md",
+        "03_engineering/repo-layout.md",
+        "03_engineering/api-design.md",
+        "03_engineering/engineering-plan.md"
+      ],
+      "error": "",
+      "ts": "2026-09-15T13:50:32+08:00"
+    },
+    {
+      "role": "ops",
+      "status": "done",
+      "summary": "运维体系完成：三环境划分与12步上线、tag驱动发布+30秒健康门禁自动回退、四黄金信号监控（P95<500ms/可用性≥99.5%）、RPO24h/RTO2h备份容灾+季度演练一票否决、10类故障Runbook。门禁5/5通过。",
+      "decisions": [
+        "环境三分：dev/staging与生产同VPS独立compose project三重隔离，M3试运行7天=真实灰度",
+        "发布：tag驱动+滚动重建（api<10s，PG与数据卷不动），窗口周四21:00东八区",
+        "监控轻量化：拨测+pino日志+每日巡检三层，不部署Prometheus",
+        "备份防误删：版本化桶+rsync不带--delete+孤儿对账；pg_dump AES-256加密口令离线",
+        "恢复演练为M3上线一票否决项"
+      ],
+      "risks": [
+        "staging与生产同机互抢资源→compose内存限额（staging≤512MB）",
+        "单人值班总线风险→support电话升级+手册可照抄执行",
+        "ACME续期失败→巡检14天前置告警，宁短停机不裸HTTP",
+        "备份窗口内数据丢失（RPO24h）→回收站30天兜人为误删，备份兜机器级灾难"
+      ],
+      "docs": [
+        "04_ops/deployment.md",
+        "04_ops/cicd.md",
+        "04_ops/monitoring.md",
+        "04_ops/backup-dr.md",
+        "04_ops/runbook.md"
+      ],
+      "error": "",
+      "ts": "2026-09-14T17:59:51+08:00（v1.1 于 2026-09-15T14:04:03+08:00 技术栈变更对齐：api 容器 Java 化、CI 双 job、JVM 指标入巡检、Runbook 10→12 类；框架不推翻，门禁 5/5 通过）"
+    },
+    {
+      "role": "support",
+      "status": "done",
+      "summary": "客服体系完成：FAQ八大主题58条Q/A+15错误码速查表（与api-design逐字对齐）；SOP接待/投诉/免费口径补偿工具箱；工单P0-P3四级（与ops告警显式映射）SLA到分钟；反馈闭环四渠道+五条回流去向。门禁4/4通过。",
+      "decisions": [
+        "忘记密码按人工核验+tech重置P1预案承接（Q1未决期间），每次受理计入证据链催办Q1",
+        "RPO/RTO与回收站边界为红线话术：备份仅兜整机灾难，禁止暗示可定点恢复单条",
+        "一期免费：退款按无此场景+补偿走非现金工具箱，商业化政策留占位",
+        "越权口径与系统404对齐：不确认他人账号/记录存在性"
+      ],
+      "risks": [
+        "人工核验强度有限（MVP无短信验证码）→双人在线+原邮箱告警+留痕",
+        "单人值班覆盖缺口→P0工单30分钟无响应电话升级",
+        "客服邮箱与FAQ反馈入口为占位，上线前须替换",
+        "MVP无客服后台，接触用户数据仅限最小截图范围"
+      ],
+      "docs": [
+        "05_support/faq.md",
+        "05_support/sop.md",
+        "05_support/ticketing.md",
+        "05_support/feedback-loop.md"
+      ],
+      "error": "",
+      "ts": "2026-09-14T18:07:56+08:00"
+    },
+    {
+      "role": "finance",
+      "status": "done",
+      "summary": "财务模型完成：Agent单次全流程成本¥0.31（典型口径，字节校准上限≈¥0.74）；收入一期免费、第7个月起商业化，12个月三场景¥252/¥1,919/¥16,430；LTV/CAC=3.5基准成立；盈亏平衡仅基础设施口径9付费用户。门禁4/4通过。",
+      "decisions": [
+        "单次全流程成本基准¥0.31，M0一次性成本<¥1，满足成本可控",
+        "单位经济基准成立LTV¥116/CAC¥33=3.5，悲观0.91不成立",
+        "盈亏平衡：基础设施口径9付费；含人力（¥500/月假设）95付费",
+        "商业化门禁：免费期实测付费意向≥2%且月流失≤5%再启动二期支付",
+        "finance档位单价表未规定，按旗舰假设标注可调整（降轻量省23%）"
+      ],
+      "risks": [
+        "收入全为推演，付费转化率±1pp使收入∓50%（最敏感变量）",
+        "收入模型未计付费流失，可能高估10-20%",
+        "M1-M3开发会话成本无给定数据，按¥6-37当量粗估待回填",
+        "Agent单价与基础设施波动影响微小"
+      ],
+      "docs": [
+        "06_finance/agent-cost-model.md",
+        "06_finance/revenue-model.md",
+        "06_finance/unit-economics.md",
+        "06_finance/summary.md"
+      ],
+      "error": "",
+      "ts": "2026-09-14T18:15:22+08:00"
+    },
+    {
+      "role": "compliance",
+      "status": "done",
+      "summary": "D3合规评估完成（扩展阶段，新增项目级compliance agent）：18项法规义务映射、9项风险评估（高4/中5），产出评估报告+隐私政策草案+整改计划T1-T11。脱敏口径判定可维持；附件票面可能含银行账号构成敏感个人信息（扩张解释待核实）。",
+      "decisions": [
+        "脱敏口径S2可维持：本人查看本人数据不构成对外提供，增加CSV导出妥善保管提示",
+        "手工录入字段为一般个人信息；附件票面可能含金融账户构成敏感个人信息，触发单独同意+PIA",
+        "产品是辅助台账非法定保管载体，用户5年存根联保管义务不免除（发票办法26条）",
+        "账号注销确认MVP缺失，需M2落地（个保法15/47条）"
+      ],
+      "risks": [
+        "R1高：数据库与附件卷落盘加密未明确（个保法51条三）→T2推荐LUKS",
+        "R2高：无隐私政策与注册同意流程→T1/T3",
+        "R3高：账号注销/删除通道缺失→T5",
+        "R4高：附件敏感信息无单独同意与PIA→T6",
+        "中风险：备份境外区域涉跨境/分类分级缺失/泄露通知预案缺失/等保定级待确认"
+      ],
+      "docs": [
+        "07_compliance/legal-assessment.md",
+        "07_compliance/privacy-policy-draft.md",
+        "07_compliance/remediation-plan.md"
+      ],
+      "error": "",
+      "ts": "2026-09-15T11:48:49+08:00"
+    }
   ],
   "issues": [],
   "human_decisions": {
     "decided_at": "2026-09-15",
     "items": [
-      {"id": "D1", "topic": "忘记密码", "decision": "纳入M2（邮箱验证码自助找回），M1期间support人工预案承接", "status": "decided"},
-      {"id": "D2", "topic": "北极星主口径", "decision": "双口径并行上报，上线1-2个月后校准定主口径", "status": "decided"},
-      {"id": "D3", "topic": "合规评估", "decision": "立即评估（M1开发启动前完成）——已由新增项目级 compliance agent 完成（AI辅助评估，不构成正式法律意见）：高风险4项，整改计划T1-T11；3处高风险结论建议条件允许时请专业人士复核", "status": "decided_and_executed", "action": "A1-done", "phase": "compliance"},
-      {"id": "D4", "topic": "客服邮箱与反馈入口", "decision": "暂用占位符，M3上线前统一替换", "status": "decided", "action": "A4"},
-      {"id": "D5", "topic": "M1-M3开发成本回填", "decision": "维持粗估，开发完成后回填", "status": "deferred", "action": "A5"},
-      {"id": "D6", "topic": "后端技术栈变更", "decision": "Spring Boot 4.1.1 + MyBatis-Flex 1.11.8 + JDK 25 LTS（前端/PG16/Caddy 不变）；已受控重跑 tech v2.0（五文档+scaffold 重新物化）并对齐 ops v1.1（五文档）", "status": "decided_and_executed", "action": "A6(spike)/A7(实测)", "phases": ["tech", "ops"]}
+      {
+        "id": "D1",
+        "topic": "忘记密码",
+        "decision": "纳入M2（邮箱验证码自助找回），M1期间support人工预案承接",
+        "status": "decided"
+      },
+      {
+        "id": "D2",
+        "topic": "北极星主口径",
+        "decision": "双口径并行上报，上线1-2个月后校准定主口径",
+        "status": "decided"
+      },
+      {
+        "id": "D3",
+        "topic": "合规评估",
+        "decision": "立即评估（M1开发启动前完成）——已由新增项目级 compliance agent 完成（AI辅助评估，不构成正式法律意见）：高风险4项，整改计划T1-T11；3处高风险结论建议条件允许时请专业人士复核",
+        "status": "decided_and_executed",
+        "action": "A1-done",
+        "phase": "compliance"
+      },
+      {
+        "id": "D4",
+        "topic": "客服邮箱与反馈入口",
+        "decision": "暂用占位符，M3上线前统一替换",
+        "status": "decided",
+        "action": "A4"
+      },
+      {
+        "id": "D5",
+        "topic": "M1-M3开发成本回填",
+        "decision": "维持粗估，开发完成后回填",
+        "status": "deferred",
+        "action": "A5"
+      },
+      {
+        "id": "D6",
+        "topic": "后端技术栈变更",
+        "decision": "Spring Boot 4.1.1 + MyBatis-Flex 1.11.8 + JDK 25 LTS（前端/PG16/Caddy 不变）；已受控重跑 tech v2.0（五文档+scaffold 重新物化）并对齐 ops v1.1（五文档）",
+        "status": "decided_and_executed",
+        "action": "A6(spike)/A7(实测)",
+        "phases": [
+          "tech",
+          "ops"
+        ]
+      },
+      {
+        "id": "D7",
+        "topic": "引入 Lombok",
+        "decision": "仅实体层用 @Getter/@Setter（DTO 维持 record）；Lombok 1.18.48 × JDK 25 实测通过，auth 测试 7/7 绿",
+        "status": "decided_and_executed"
+      }
     ],
     "record": "00_charter/decisions.md"
   },
-  "versions": ["9c06cd0 chore: 初始化项目 P20260914-1728-网页版票夹管理发票", "cec3615 phase:planner P20260914-1728-网页版票夹管理发票", "2ae1bfa phase:pm P20260914-1728-网页版票夹管理发票", "de4e90a phase:designer P20260914-1728-网页版票夹管理发票", "6b9278c phase:tech P20260914-1728-网页版票夹管理发票", "259f7aa phase:ops P20260914-1728-网页版票夹管理发票", "b3c6603 phase:support P20260914-1728-网页版票夹管理发票", "10c5d33 phase:finance P20260914-1728-网页版票夹管理发票", "0e3595d chore: 最终报告 P20260914-1728-网页版票夹管理发票", "b94ca08 feat: compliance agent 定义", "dc44f68 phase:compliance P20260914-1728-网页版票夹管理发票", "3fe4b72 docs: D3 合规评估闭环", "066b457 phase:tech v2.0 技术栈变更重跑（D6）", "4d278d1 phase:ops v1.1 技术栈变更对齐（D6）"]
+  "versions": [
+    "9c06cd0 chore: 初始化项目 P20260914-1728-网页版票夹管理发票",
+    "cec3615 phase:planner P20260914-1728-网页版票夹管理发票",
+    "2ae1bfa phase:pm P20260914-1728-网页版票夹管理发票",
+    "de4e90a phase:designer P20260914-1728-网页版票夹管理发票",
+    "6b9278c phase:tech P20260914-1728-网页版票夹管理发票",
+    "259f7aa phase:ops P20260914-1728-网页版票夹管理发票",
+    "b3c6603 phase:support P20260914-1728-网页版票夹管理发票",
+    "10c5d33 phase:finance P20260914-1728-网页版票夹管理发票",
+    "0e3595d chore: 最终报告 P20260914-1728-网页版票夹管理发票",
+    "b94ca08 feat: compliance agent 定义",
+    "dc44f68 phase:compliance P20260914-1728-网页版票夹管理发票",
+    "3fe4b72 docs: D3 合规评估闭环",
+    "066b457 phase:tech v2.0 技术栈变更重跑（D6）",
+    "4d278d1 phase:ops v1.1 技术栈变更对齐（D6）"
+  ]
 }
